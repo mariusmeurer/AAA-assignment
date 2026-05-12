@@ -14,3 +14,12 @@ The project progress, outcomes of meetings and ToDos are written down here.
 - next meeting 11.5 7:30pm
 
 # Meeting #2 (11.05.26)
+
+- open-meteo.com seems really good https://open-meteo.com/en/docs/historical-weather-api?latitude=41.878865584&longitude=-87.625192142&start_date=2024-01-01
+- how to share the big data set (maybe google share?)
+- stay within the transactional data and later on aggregate the data
+
+## ToDo #2
+- Georgios to send Marius the whole data set 
+- Marius will work on data set on Tuesday
+- next steps via WhatsApp
