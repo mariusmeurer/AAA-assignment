@@ -22,4 +22,13 @@ The project progress, outcomes of meetings and ToDos are written down here.
 ## ToDo #2
 - Georgios to send Marius the whole data set 
 - Marius will work on data set on Tuesday
-- next steps via WhatsApp
+- Georgios 1.3 + 1.4
+- Kati 1.5
+- Huyen 1.6
+
+# Meeting #3 (18.05.26)
+- double check with precise data in the end: for now stay with one district for the whole of Chicago
+
+## ToDo #3 
+- everyone doublechecks chapter 1 for understanding
+- Marius will work at task 2 on Thursday and then structure tasks
