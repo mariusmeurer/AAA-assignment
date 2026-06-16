@@ -32,3 +32,9 @@ The project progress, outcomes of meetings and ToDos are written down here.
 ## ToDo #3 
 - everyone doublechecks chapter 1 for understanding
 - Marius will work at task 2 on Thursday and then structure tasks
+- Huyen to do 1.7 and missing stuff in task 1
+- Kati does 2.1 to 2.3
+- Georgios does 2.4 to 2.6
+- Marius does 2.7 to 2.8
+
+# Meeting #4 (01.06.26)
