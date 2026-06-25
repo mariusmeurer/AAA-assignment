@@ -38,3 +38,7 @@ The project progress, outcomes of meetings and ToDos are written down here.
 - Marius does 2.7 to 2.8
 
 # Meeting #4 (01.06.26)
+
+
+# Meeting #5 (22.06.26)
+- keep in mind to create a sample dataset for challenging
