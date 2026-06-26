@@ -66,6 +66,8 @@ $$c_t(a_t) = \alpha_t \left(e^{\beta a_t} - 1\right)$$
 - $\beta > 0$ sets the **convexity**: higher power is disproportionately expensive, which discourages bursts of fast charging.
 - $\alpha_t \ge 0$ is the **time-of-use price coefficient**, a deterministic function of the step $t$.
 
+*Note: the assignment states the cost as $-\alpha_t e^{a_t}$. We adopt the equivalent but better-behaved form $\alpha_t(e^{\beta a_t}-1)$: the scaling $\beta$ keeps the exponent numerically stable across the kW range, and the $-1$ makes zero power cost exactly zero. The exponential shape is preserved; $\beta$ is fixed in 4.3.*
+
 ### 6.2 Shortfall penalty (terminal, $t = N$)
 
 If the final SoC cannot cover the realised demand, a **large penalty** proportional to the shortfall is applied:
@@ -86,11 +88,34 @@ Because the horizon is finite and episodic, an **undiscounted** objective ($\gam
 
 ## 7. Objective
 
-Find a policy $\pi(a \mid s)$ — a charging rule mapping each state $(t, b_t)$ to a power level — that maximises the **expected episode return**:
+Find a policy $\pi(a \mid s)$ (a charging rule mapping each state $(t, b_t)$ to a power level) that maximises the **expected episode return**:
 
 $$\pi^\star = \arg\max_{\pi}\ \mathbb{E}_{D}\!\left[\,\sum_{t=0}^{N} r_t \;\Big|\; \pi\,\right],$$
 
 where the expectation is taken over the random daily demand $D$.
+
+## 8. Assumptions
+
+- **Fixed window:** the vehicle arrives at 2 p.m. and leaves at 4 p.m. every day, giving exactly $N$ equal decision slots.
+- **Charging only:** the vehicle only charges within the window. There is no driving and no energy leaves the battery between arrival and departure.
+- **Demand revealed only at the end:** the day's energy need $D$ is realised at departure (after the last slot), not before, so the agent must act under uncertainty.
+- **Deterministic charging:** a chosen power $a_t$ adds exactly $a_t\,\Delta t$ kWh, with no charging losses or efficiency curve.
+- **Capacity bound:** the battery never exceeds $B_{\max}$. Energy that would exceed it is not stored.
+- **Known, stationary price:** the profile $\alpha_t$ is known in advance and identical every episode.
+
+## 9. The MDP at a glance
+
+| Element | Definition |
+|---|---|
+| **State** $s_t$ | $(t,\; b_t)$, step $t \in \{0,\dots,N\}$, SoC $b_t \in [0, B_{\max}]$ kWh |
+| **Initial state** | $t=0$, $b_0$ = battery level at 2 p.m. (value in 4.3) |
+| **Action** $a_t$ | discrete power levels $\{a_1,\dots,a_K\}$ (zero/low/medium/high), $\le P_{\max}$ |
+| **Transition** | $b_{t+1} = \min(B_{\max},\ b_t + a_t\,\Delta t)$ — deterministic |
+| **Randomness** | $D \sim \mathcal{N}(\mu_D,\sigma_D^2)$, $D \leftarrow \max(D,0)$, drawn once at departure |
+| **Reward** | per step $-\alpha_t(e^{\beta a_t}-1)$; terminal $-\lambda\max(0,\,D-b_N)$ |
+| **Horizon** | finite, $N$ steps (episodic) |
+| **Discount** | $\gamma = 1$ |
+| **Goal** | minimise expected charging cost while avoiding energy shortfall |
 
 ## Notation
 
