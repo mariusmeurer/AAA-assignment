@@ -42,3 +42,12 @@ The project progress, outcomes of meetings and ToDos are written down here.
 
 # Meeting #5 (22.06.26)
 - keep in mind to create a sample dataset for challenging
+
+# Meeting #6 (03.07.26)
+
+## ToDo #2
+- one person to do create title page and set up the whole formal setting + create some writting conventions (do we use numbers for enumeration) + making notebooks clean (includes writing comments, deleting markdown if too much / redundant, write student realistic comments (no AI)) (Kati)
+- two people to rewrite task 4 with new improvements until finalization (Georgios + Marius)
+- writing chapter 4 (Huyen)
+
+# Meeting #7 (09.07.26) 7:30pm
