@@ -1,0 +1,91 @@
+# Data analytics
+
+## Descriptive Analytics
+- Brief recap of demand patterns across spatio-temporal resolutions (hex vs. census tract, hourly vs. 4-hourly)
+- GMM/KDE hotspot results (1-2 key maps)
+
+## Predictive Analytics
+
+### Modeling dataset and feature design
+
+This section constructs two supervised models that predict taxi trip demand per spatial unit and time bucket in spatio-temporal resolution. The canonical modeling dataset is the **H3 r6 x 4h aggregation**. The prediction target is `demand_count`, the number of trips originating in a spatial unit during a time bucket. The panel is zero-filled, so the absence of trips is represented as an observation of zero rather than a missing row; this is required for the model to learn low-demand conditions rather than only observed trips. Demand is heavily right-skewed with 12.6% zeros, so it is modelled on a `log1p` scale and predictions are inverted before scoring. 
+
+Regarding independent variables, we conduct feature engineering process with these steps:
+
+**Calendar encoding.** Hour-of-day, day-of-week, and month are periodic quantities, so each is encoded as a sine/cosine pair rather than a raw integer. This preserves continuity across the period boundary (23:00 is adjacent to 00:00, December to January), which an ordinal encoding would misrepresent as maximally distant. A binary weekend indicator is added because demand shifts between commuting and leisure regimes that are not fully captured by the day-of-week cycle alone.
+
+**Spatial encoding.** Each spatial unit is represented by its centroid latitude and longitude rather than by a one-hot indicator per cell. Continuous coordinates encode relative position and distance, allowing the support vector machine and neural network to share information between neighbouring units and to generalise across space — which directly supports location-conditioned queries such as demand "around the outskirts". The centroid is derived deterministically from the H3 cell identifier, so reframing the retained spatial label as coordinates introduces no information loss.
+
+**Hotspot distances.** The previous section identified three dominant demand centres, the downtown core, and O'Hare and Midway airports. The Euclidean distance from each unit to these three anchors is added as an explicit feature. These distances are deterministic transforms of the centroid coordinates and therefore add no new information in principle, but they supply a coordinate frame aligned with the observed demand structure, which finite-sample SVM and neural-network models exploit more readily than raw coordinates. Three additional columns is a negligible dimensional cost. The anchors are identified from training data only and are not hard-coded. Distances are expressed in miles for consistency with the trip-level distance fields.
+
+**Weather data.** The weather features are aggregated into 4-hour bins from weather data, aligned with the demand time buckets. We use the mean for temperature and wind speed, the sum for rain, snow, and total precipitation, and the maximum weather code to capture the most severe condition within each window.
+
+### Validation strategy
+
+In terms of train/test splitting, we split by grouping by calendar day, which means a day appears entirely in training data or testing data, never both. The reason is that The 4-hour buckets of a given day and cell share weather, calendar values, and unobserved local shocks. A purely random split could place some of a day's buckets in training and the rest in test, letting the model exploit day-specific signal absent from the features and inflating the score.
+
+For feature standardization and hotspot anchor creation, we fit exclusively on training data. Standardization and the target transform are wrapped in a pipeline, ensuring they are automatically refit within each cross-validation fold.
+
+For hyperparameter tuning and model selection, cross validation (5 folds, group = day) is used over the development set. For testing and model comparision, a grouped random sample of whole days (15%) is set aside as an untouched test set
+
+To evaluate model performance, we use three metrics: Mean Absolute Error (MAE), Root Mean Squared Error (RMSE), and R². MAE reports the average absolute deviation between predicted and observed demand in the original unit (trips per spatio-temporal bin), making it directly interpretable for non-technical stakeholders. RMSE penalizes larger errors more heavily due to the squaring term, making it more sensitive if the model underestimates demand during a spike. R² indicates the proportion of variance in demand explained by the model relative to a naive mean-baseline, giving a scale-free measure of overall fit.
+
+### Support vector machines
+    + Model progression. (For reference: linear → kernel (RBF), and how you selected hyperparameters (grid search / manual CV loop — mention why manual, since GridSearchCV + PyTorch deadlock isn't relevant here but the CV strategy is worth stating))
+    + Result of the performance evaluation metrics (e.g., RMSE, MAE, R²)
+    + Comment on its shortfall
+
+### Neural networks
+
+We also use feedforward neural network method to predic taxi demand. Our model development process includes developing base line model and tuning hyperparameter.
+
+First, feedforward baseline model is the model without tuning hypterparameter. It uses the same feature matrix, splits and scaling as SVM model. Regarding architecture, the input layer sized to the feature count, two hiddens layers with correspondingly 64 and 32 nodes with ReLU as activation function (the detail of architecture can be found in the Appendix{}). Other hyperparameters in this model include:
+
+**Dropout = 0.2** - it means that in each running, model omits 20% nodes in the hidden layers. It can reduce the interaction between some high-correlated nodes and make sure model does not extremely depend on some specific parameter.
+
+**Optimiser.** Adam with lr=1e-3. By using Adam for optimiser, each parameter gets its own adaptive step size, scaled down where gradients are large or noisy, scaled up where they are small or consistent.
+
+**Early stopping.** We use early stopping to monitor validation loss and halting training once it fails to improve for a set number of epochs, restoring the model weights from the best-performing epoch. Patience=15 epochs on an internal 10% validation split drawn from the training fold. The internal split means that we use a part of training dataset to train, and the internal validation part to tell the model when to stop. This internal validation fold does not overlap with the outer test fold or the final holdout, to avoid data leakage. The result of baseline model is shown in Appendix {}.
+
+Second, we try model with different number and width of layers, dropout, learning rate, batch size, and epochs. Hyperparameters were tuned via manual grid search over the following candidate values is shown in the Appendix {} with cross validation method.
+
+Among the candidate configurations evaluated via grid search, the best-performing model was found with hidden sizes (128, 64, 32), dropout of 0.1, learning rate of 1e-3, and batch size of 512. The average `demand_count` of the dataset is 108. The MAE of the best model is 22, which is only 20% of average. It indicates that model is quite good in predicting the demand. Meanwhile, RMSE is much more larger than MAE. It may be because the model makes huge mistakes with the spatial unit that have very high demand. R2 = 93.54. It means that model can explain 93.54% of variance. In other word, it shows that model is 93.54% than the model predicts all rows as mean of demand.
+
+To see how the variables contribute to the prediction, we analyze SHAP value (Shapley Value Foundation), which indicates how much this feature pushed the prediction up (+) or down (-). The SHAP value of feature i is calculated by: at every possible subset of features, add feature i to that subset, and measure how much the prediction changes. Then average that change across all subsets, weighted by how many ways that subset could occur.
+
+The SHAP plot can be found in the Appendix {}. The most important features are related to spatial unit, especially the **distance** from the hexagon to the busy areas. Low distance to Loop makes the demand increase, which means the hexagon near the busy zones have high demand. It aligns with the business sense. The **time features** (`hour_cos`, `hour_sin`) also have the high ranks, which means time of day matters a lot. `is_weekend` (weekend = 1) slighly negative. It means that weekdays have slightly higher taxi demand overall. The **weather features** do not have much contribution to the demand, the SHAP value is nearly 0.
+
+### Resolution sensitivity
+To assess how model performance varies with spatial and temporal resolution, we re-evaluate model performance along two dimensions: (1) spatial resolution (H3 r5/r6/r7, Community Area, Census Tract) at fixed 4h bins, and (2) temporal resolution (1h, 4h, 8h, 1d) at fixed H3 r6. We use the same set of hyperparameters and model configurations as in 4.2.3 and 4.2.4 and only re-fitted on each resolution's training split. The hotspot anchors and the scaler are re-fitted per resolution because they are data-derived.
+
+Regarding spatial sensitivity, the granularity–sparsity trade-off is clear. From r5 to r7, cells grow from 8 to 128, mean demand falls from 357 to 22, and the zero-rate climbs from 1% to 49%. R² weakens accordingly. Raw MAE falls but it í because finer cells hold fewer trips, hence cross-resolution comparisons should rely on R²/nMAE, not raw MAE. Community Area (77 cells, R² 0.69–0.77) sits between r6 and r7. This results shows that finer resolution gives more localized signals but degrades reliability once cells sparsify. r6 (or Community Area) is the more defensible operating resolution for fleet decisions than r7, which has low R² means predictions there are largely noise. However, it should be noted that the per-resolution Neural Network is a single refit and underperforms its tuned version. 
+
+{Note: add result table in the Appendix}
+
+Census tract has 607 unique cells, 94.7% of buckets empty, and R² collapses to 0.08 (SVM) / 0.18 (NN) - essentially no better than predicting the mean. Two effects compound. First, the grid is extremely fine, so sparsity alone depresses R², as it already did at r7. Second, only **45.6%** of trips carry a tract and the missing ones are the low-demand ones, so even the observed demand is a biased, deflated picture. The conclusion for the client is that census tract is unsuitable as a primary unit - not because the model is weak, but because the input is both too fine and structurally incomplete in a demand-correlated way. 
+
+{Note: add result table in the Appendix}
+
+Regarding temporal sensitivity, from 1h to 1d the zero-rate falls from 26.8% to 4.0% and R² rises while raw MAE grows with the bigger counts. But high R² at 1d is not a free win: a one-day bucket cannot answer "how many cars at 8am vs 6pm", the tactical question the client actually has. 4h is enough temporal grain for shift planning, sparse enough to stay learnable.
+
+{Note: add result table in the Appendix}
+
+### SVM vs. NN comparison
+
+On the holdout set, the tuned NN is the best model (MAE 24.9, R2 0.921), the NN baseline is essentially as good (MAE 25.8, R2 0.926), and both clearly beat the RBF-SVM (MAE 30.8, R2 0.875) and the linear SVM (MAE 65.6). Three points decide the verdict:
+
+- **The SVM does not beat the naive benchmark.** The historical-mean lookup scores MAE **29.1 / R2 0.898** - better than the RBF-SVM on both metrics. Only the NN (MAE 24.9 / R2 0.921) adds real signal over a trivial baseline. A kernel SVM that, after a full grid search, fails to beat a lookup table is hard to justify as the deployed model.
+- **Cost runs the same way.** The RBF-SVM had to be tuned on a day-subsample (kernel SVMs scale ~quadratically in samples) and takes **~18 s** to score the holdout; the NN trains on the full development set and scores in **~0.01 s** - roughly 1800x faster inference. The deep model is both more accurate and cheaper to serve.
+- **Interpretability** is not lost: SHAP (3.6) shows time-of-day and the hotspot distances dominate - enough for a client conversation.
+
+Therefore, deep learning is clearly worth it here: the NN is the only model that meaningfully beats the benchmark, and it is also the faster one to serve.
+
+{Note: add result table in the Appendix}
+
+## Smart Charging Using	Reinforcement Learning
+
+# Discussion & Outlook
+
+## Task 3.8c, d
+    + Improvement levers for a follow-up project
+    + A non-technical translation of the chosen model's error into a fleet-operations implication

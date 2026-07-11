@@ -1,0 +1,39 @@
+# Data preparation
+
+## Data Cleaning
+
+Data is technically cleaned before being analyzed to ensure that all columns have consistent formats and can be processed correctly. The main steps include: (1) standardizing column names; (2) converting timestamps into datetime format; (3) converting numeric and monetary columns into proper numeric types; and (4) checking for duplicate rows. This step ensures we have technically clean, processable data.
+
+## Missing Value Treatment
+
+This section covers two steps: (1) investigating missing values and (2) defining the treatment strategy.
+
+First, we examine the distribution of missing values to assess whether any patterns are present. In this dataset, missing values are not equally distributed across all spatial columns. Census Tract information has a very high share of missing values (55.65%). This is expected because the City of Chicago suppresses Census Tracts for some trips for privacy reasons. Therefore, Census Tracts are not suitable as the main spatial aggregation level. Community Area (2.79%) and centroid coordinates (2.74%) are much more complete and are therefore used as the main spatial units for the model. Crucially, the missing values for these variables are distributed uniformly across months and hours of the day, which means that excluding them does not distort the observed temporal demand pattern.
+
+Dropoff variables have more missing values than pickup variables. Since the demand model focuses on where trips start, missing dropoff values are not used as grounds for removing observations from the main demand dataset.
+
+Missing values are not removed globally, but are handled according to the specific validation or aggregation task. For the main modeling dataset — taxi demand defined by pickup location — we remove observations with null pickup coordinates. For side analyses such as trip duration, we exclude trips where duration equals zero.
+
+## Semantic Validation and Outlier Handling
+
+After analyzing missing values, the next step is to verify whether the available values are meaningful from a business and domain perspective. We assess the reasonableness of trip start and end times, duration, distance, the relationship between distance and price, and trip fares by examining summary statistics (mean, median, and distribution) for each variable. We also confirm that pickup coordinates fall within the geographic boundaries of Chicago.
+
+Based on this inspection, three hard filters are applied:
+
+- **Impossible timestamps** (0.0007%): trips where the start timestamp is later than the end timestamp are excluded as physically impossible, most likely caused by data entry errors or timestamp rounding.
+- **Excessive duration** (0.08%): trips with duration above 3 hours are removed, as this exceeds what is operationally plausible for an urban taxi ride in Chicago.
+- **Extreme distance** (0.008%): trips with extreme distance values are excluded, as they fall outside any geographically plausible range within the Chicago metro area and are likely caused by GPS errors or data anomalies.
+
+Together, these filters remove less than 0.1% of total trips, ensuring the modeling dataset reflects genuine demand without meaningfully reducing its size.
+
+## Aggregation
+
+The cleaned trip-level data is aggregated along two dimensions: time and space.
+
+**(1) Temporal resolution** — Time buckets are derived from the pickup timestamp. We evaluate four granularities: 1-hour, 4-hour, 8-hour, and daily intervals. Finer resolutions capture more operational detail but produce more volatile demand counts per cell; coarser resolutions are more stable but lose short-term signal. A 4-hour bucket strikes a practical balance — it is granular enough to distinguish morning, midday, evening, and night demand patterns, while remaining stable enough for reliable model training.
+
+**(2) Spatial resolution** — We evaluate two spatial unit types: Community Areas and H3 hexagons. Community Areas are administratively defined and interpretable, but their irregular shapes and varying sizes limit spatial precision. H3 hexagons offer a uniform, standardized grid that can be tuned by resolution level (see Appendix). Resolutions range from R4 (~1,770 km², metro-wide) down to R8 (~0.74 km², a few city blocks). R6 (~36 km², roughly a large neighborhood) is selected as the primary spatial unit: it is fine enough to capture meaningful demand variation across Chicago's districts, while finer resolutions such as R7 or R8 would produce many near-zero cells, making the prediction target sparse and noisy.
+
+**(3) Filling zero-demand combinations** — A standard groupby only produces rows where at least one trip occurred, leaving (location, time) pairs with zero pickups absent from the dataset. These implicit zeros are made explicit via a Cartesian product of all cells and time buckets, so the model can learn from the absence of demand. Trip-characteristic columns are set to NaN for these filled cells.
+
+**Final decision: H3 R6 × 4-hour buckets** is used as the primary resolution for all subsequent modeling. This combination provides neighborhood-level spatial granularity with a meaningful temporal structure, while keeping the dataset dense enough for robust model training.

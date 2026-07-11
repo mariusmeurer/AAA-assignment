@@ -1,15 +1,17 @@
 ---
-title: "Project Report Template" # Give your report a title
+title: "Ride-Hailing Demand & Smart Charging for an Electric Fleet" 
 course: "Advanced Analytics and Applications" # Specify the course name
-team: "00" # Specify your team number
+team: "04" # Specify your team number
 author:
-  - name: Student 1
-    student-id: "111111111"
-  - name: Student 2
-    student-id: "222222222"
-  - name: Student 3
-    student-id: "333333333"
-contact: student@smail.uni-koeln.de # Specify one contact for the project
+  - name: Georgios Kesopoulos
+    student-id: "7396865"
+  - name: Anna Goitowski
+    student-id: "7356320"
+  - name: Marius Meurer
+    student-id: "7443647"
+  - name: Thanh Huyen Dao
+    student-id: "7431143"
+contact: mmeurer9@smail.uni-koeln.de # Specify one contact for the project
 supervisor: "Univ.-Prof. Dr. Wolfgang Ketter"
 co-supervisor: "Janik Muires" # TA of the course is the co-supervisor
 date: 2026-04-01 # Date of submission
@@ -23,10 +25,17 @@ date: 2026-04-01 # Date of submission
 
 {{< include sections/01-introduction.qmd >}}
 
-{{< include sections/02-analysis.qmd >}}
+{{< include sections/02-data-description.qmd >}}
+
+{{< include sections/03-data-preparation.qmd >}}
+
+{{< include sections/04-data-analytics.qmd >}}
 
 # Citations and References
 You can easily cite your sources using BibLaTeX. For example, you can cite the Quarto documentation [@quarto2024] or a textbook like "R for Data Science" [@wickham2023]. The bibliography will be automatically generated at the end of the document.
 
 # Conclusion
 The conclusion should summarize your findings and suggest future work.
+
+{{< include sections/05-appendix.qmd >}}
+

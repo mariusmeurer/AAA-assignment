@@ -1,0 +1,37 @@
+# Appendix
+
+## H3 hexagon area corresponding to specific resolution
+
+| Resolution | Avg Area | Rough Scale |
+|:---|---:|:---|
+| R4 | ~1,770 km² | Large city / metro region |
+| R5 | ~253 km² | City district |
+| R6 | ~36 km² | Large neighborhood |
+| R7 | ~5.2 km² | Neighborhood |
+| R8 | ~0.74 km² | A few city blocks |
+
+Need to add: percentage of zero cells for each combination of temporal, spatial unit
+
+
+## Baseline Neural Network Architecture
+![Model architecture](assets/Appendix - nn_architecture.png)
+
+## candidate values of hyperparameters for tuning Neural Network model
+
+| Parameter       | Candidate Values           |
+|-----------------|-----------------------------|
+| `hidden_sizes`  | (64, 32), (128, 64, 32)     |
+| `dropout`       | 0.1, 0.2                    |
+| `lr`            | 1e-3, 5e-4                  |
+| `batch_size`    | 256, 512                    |
+
+## Baseline Neural Network model result
+![Model result - Neural network baseline model](assets/Appendix - NN model - baseline.png)
+
+## Best Neural Network model
+
+![Model result - Neural network tuning model](assets/Appendix - NN model.png)
+
+## Feature importance - SHAP - of best Neural Network model
+
+![SHAP feature importance](assets/SHAP.png)
