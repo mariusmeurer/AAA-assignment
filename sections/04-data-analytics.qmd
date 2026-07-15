@@ -1,8 +1,10 @@
 # Data analytics
 
 ## Descriptive Analytics
-- Brief recap of demand patterns across spatio-temporal resolutions (hex vs. census tract, hourly vs. 4-hourly)
-- GMM/KDE hotspot results (1-2 key maps)
+
+City-wide demand follows a two-peak daily pattern, with the strongest peak around 5pm. Weekdays are busier than weekends, while demand also varies seasonally and weather adds a smaller secondary effect. The downtown core produces many short, high-throughput trips, whereas the airports produce fewer but longer and higher-value trips. Origin-destination flows are asymmetric and idle time is highest in low-demand periods and peripheral areas. These patterns are consistent with commuting, business activity, nightlife, and airport travel, but remain descriptive rather than causal findings.
+
+The GMM and KDE show strong concentrations around central Chicago and the airport areas. Across resolutions, coarse spatial or daily aggregation loses operational detail, while fine hexagons and hourly bins produce many empty observations. H3 r6 x 4h provides the best compromise between operational detail and sparsity and is therefore carried into predictive modelling.
 
 ## Predictive Analytics
 
@@ -16,49 +18,52 @@ Regarding independent variables, we conduct feature engineering process with the
 
 **Spatial encoding.** Each spatial unit is represented by its centroid latitude and longitude rather than by a one-hot indicator per cell. Continuous coordinates encode relative position and distance, allowing the support vector machine and neural network to share information between neighbouring units and to generalise across space — which directly supports location-conditioned queries such as demand "around the outskirts". The centroid is derived deterministically from the H3 cell identifier, so reframing the retained spatial label as coordinates introduces no information loss.
 
-**Hotspot distances.** The previous section identified three dominant demand centres, the downtown core, and O'Hare and Midway airports. The Euclidean distance from each unit to these three anchors is added as an explicit feature. These distances are deterministic transforms of the centroid coordinates and therefore add no new information in principle, but they supply a coordinate frame aligned with the observed demand structure, which finite-sample SVM and neural-network models exploit more readily than raw coordinates. Three additional columns is a negligible dimensional cost. The anchors are identified from training data only and are not hard-coded. Distances are expressed in miles for consistency with the trip-level distance fields.
+**Hotspot distances.** The previous section identified three dominant demand centres: the downtown core, O'Hare, and Midway airports. The great-circle (Haversine) distance from each unit to these three anchors is added as an explicit feature. These distances are deterministic transforms of the centroid coordinates and therefore add no new information in principle, but they supply a coordinate frame aligned with the observed demand structure, which finite-sample SVM and neural-network models exploit more readily than raw coordinates. Three additional columns impose a negligible dimensional cost. The anchors are identified from training data only and are not hard-coded. Distances are expressed in miles for consistency with the trip-level distance fields.
 
 **Weather data.** The weather features are aggregated into 4-hour bins from weather data, aligned with the demand time buckets. We use the mean for temperature and wind speed, the sum for rain, snow, and total precipitation, and the maximum weather code to capture the most severe condition within each window.
 
 ### Validation strategy
 
-In terms of train/test splitting, we split by grouping by calendar day, which means a day appears entirely in training data or testing data, never both. The reason is that The 4-hour buckets of a given day and cell share weather, calendar values, and unobserved local shocks. A purely random split could place some of a day's buckets in training and the rest in test, letting the model exploit day-specific signal absent from the features and inflating the score.
+In terms of train/test splitting, we split by grouping by calendar day, which means a day appears entirely in training data or testing data, never both. This is because the 4-hour buckets of a given day and cell share weather, calendar values, and unobserved local shocks. A purely random split could place some of a day's buckets in training and the rest in test, letting the model exploit day-specific signal absent from the features and inflating the score.
 
 For feature standardization and hotspot anchor creation, we fit exclusively on training data. Standardization and the target transform are wrapped in a pipeline, ensuring they are automatically refit within each cross-validation fold.
 
-For hyperparameter tuning and model selection, cross validation (5 folds, group = day) is used over the development set. For testing and model comparision, a grouped random sample of whole days (15%) is set aside as an untouched test set
+For hyperparameter tuning and model selection, the NN uses five-fold GroupKFold over the development set. The linear SVM uses three-fold cross-validation, while the computationally expensive RBF-SVM uses three-fold GroupKFold on a 120-day development subsample. For testing and model comparison, a grouped random sample of whole days (15%) is set aside as an untouched test set.
 
 To evaluate model performance, we use three metrics: Mean Absolute Error (MAE), Root Mean Squared Error (RMSE), and R². MAE reports the average absolute deviation between predicted and observed demand in the original unit (trips per spatio-temporal bin), making it directly interpretable for non-technical stakeholders. RMSE penalizes larger errors more heavily due to the squaring term, making it more sensitive if the model underestimates demand during a spike. R² indicates the proportion of variance in demand explained by the model relative to a naive mean-baseline, giving a scale-free measure of overall fit.
 
 ### Support vector machines
-    + Model progression. (For reference: linear → kernel (RBF), and how you selected hyperparameters (grid search / manual CV loop — mention why manual, since GridSearchCV + PyTorch deadlock isn't relevant here but the CV strategy is worth stating))
-    + Result of the performance evaluation metrics (e.g., RMSE, MAE, R²)
-    + Comment on its shortfall
+
+First, a linear support vector regressor is fitted as a simple baseline. A small grid search selects `C = 0.1` and `epsilon = 0.2`. On the holdout set, the linear SVM achieves MAE 65.56, RMSE 203.49, and R² 0.633. As a linear model, it cannot capture nonlinear interactions between location and time, which contributes to its larger errors during demand peaks. 
+
+Second, an RBF kernel is introduced to capture nonlinear relationships between time, location, and weather. The three-fold grouped grid search is run on a random 120-day development subsample because kernel SVMs are computationally expensive. The selected parameters are `C = 10`, `gamma = 0.1`, and `epsilon = 0.1`. The RBF-SVM improves holdout performance to MAE 30.83, RMSE 118.86, and R² 0.875.
+
+Its main shortfalls are computational cost and limited scalability. The selected RBF estimator is not refitted on the full development set, takes approximately 18 seconds to score the holdout, and does not outperform the historical-mean benchmark (MAE 29.14, RMSE 107.13, R² 0.898).
 
 ### Neural networks
 
-We also use feedforward neural network method to predic taxi demand. Our model development process includes developing base line model and tuning hyperparameter.
+We also use a feedforward neural network to predict taxi demand. Our model development process includes developing a baseline model and tuning its hyperparameters.
 
-First, feedforward baseline model is the model without tuning hypterparameter. It uses the same feature matrix, splits and scaling as SVM model. Regarding architecture, the input layer sized to the feature count, two hiddens layers with correspondingly 64 and 32 nodes with ReLU as activation function (the detail of architecture can be found in the Appendix{}). Other hyperparameters in this model include:
+First, the feedforward baseline is fitted without hyperparameter tuning. It uses the same feature matrix, splits, and scaling as the SVM models. Its architecture consists of an input layer sized to the feature count, two hidden layers with 64 and 32 nodes, ReLU activations, and an output layer (see Appendix). Other settings include:
 
-**Dropout = 0.2** - it means that in each running, model omits 20% nodes in the hidden layers. It can reduce the interaction between some high-correlated nodes and make sure model does not extremely depend on some specific parameter.
+**Dropout = 0.2.** During training, 20% of hidden-layer activations are randomly set to zero. This regularises the network by reducing co-adaptation and dependence on individual activations.
 
 **Optimiser.** Adam with lr=1e-3. By using Adam for optimiser, each parameter gets its own adaptive step size, scaled down where gradients are large or noisy, scaled up where they are small or consistent.
 
-**Early stopping.** We use early stopping to monitor validation loss and halting training once it fails to improve for a set number of epochs, restoring the model weights from the best-performing epoch. Patience=15 epochs on an internal 10% validation split drawn from the training fold. The internal split means that we use a part of training dataset to train, and the internal validation part to tell the model when to stop. This internal validation fold does not overlap with the outer test fold or the final holdout, to avoid data leakage. The result of baseline model is shown in Appendix {}.
+**Early stopping.** Training stops when validation loss fails to improve for 15 epochs and restores the weights from the best-performing epoch. The internal 10% validation split is drawn from the respective training fold and does not overlap with the outer validation fold or final holdout. The baseline result is shown in the Appendix.
 
-Second, we try model with different number and width of layers, dropout, learning rate, batch size, and epochs. Hyperparameters were tuned via manual grid search over the following candidate values is shown in the Appendix {} with cross validation method.
+Second, we vary the number and width of hidden layers, dropout, learning rate, and batch size. The candidate values shown in the Appendix are evaluated by manual grid search with five-fold grouped cross-validation.
 
 Among the candidate configurations evaluated via grid search, the best-performing model was found with hidden sizes (128, 64, 32), dropout of 0.1, learning rate of 1e-3, and batch size of 512. The average `demand_count` of the dataset is 108. The MAE of the best model is 22, which is only 20% of average. It indicates that model is quite good in predicting the demand. Meanwhile, RMSE is much more larger than MAE. It may be because the model makes huge mistakes with the spatial unit that have very high demand. R2 = 93.54. It means that model can explain 93.54% of variance. In other word, it shows that model is 93.54% than the model predicts all rows as mean of demand.
 
-To see how the variables contribute to the prediction, we analyze SHAP value (Shapley Value Foundation), which indicates how much this feature pushed the prediction up (+) or down (-). The SHAP value of feature i is calculated by: at every possible subset of features, add feature i to that subset, and measure how much the prediction changes. Then average that change across all subsets, weighted by how many ways that subset could occur.
+To see how the variables contribute to the prediction, we analyze SHAP values (SHapley Additive exPlanations), which indicate how much each feature pushed the prediction up (+) or down (-). The SHAP value of feature i is calculated by adding feature i to every possible subset of features, measuring how much the prediction changes, and averaging that change across all subsets with appropriate weights.
 
 The SHAP plot can be found in the Appendix {}. The most important features are related to spatial unit, especially the **distance** from the hexagon to the busy areas. Low distance to Loop makes the demand increase, which means the hexagon near the busy zones have high demand. It aligns with the business sense. The **time features** (`hour_cos`, `hour_sin`) also have the high ranks, which means time of day matters a lot. `is_weekend` (weekend = 1) slighly negative. It means that weekdays have slightly higher taxi demand overall. The **weather features** do not have much contribution to the demand, the SHAP value is nearly 0.
 
 ### Resolution sensitivity
-To assess how model performance varies with spatial and temporal resolution, we re-evaluate model performance along two dimensions: (1) spatial resolution (H3 r5/r6/r7, Community Area, Census Tract) at fixed 4h bins, and (2) temporal resolution (1h, 4h, 8h, 1d) at fixed H3 r6. We use the same set of hyperparameters and model configurations as in 4.2.3 and 4.2.4 and only re-fitted on each resolution's training split. The hotspot anchors and the scaler are re-fitted per resolution because they are data-derived.
+To assess how model performance varies with spatial and temporal resolution, we re-evaluate model performance along two dimensions: (1) spatial resolution (H3 r5/r6/r7, Community Area, Census Tract) at fixed 4h bins, and (2) temporal resolution (1h, 4h, 8h, 1d) at fixed H3 r6. We use the same set of hyperparameters and model configurations as in 4.2.3 and 4.2.4 and only refit them on each resolution's training split. The hotspot anchors and the scaler are refitted per resolution because they are data-derived.
 
-Regarding spatial sensitivity, the granularity–sparsity trade-off is clear. From r5 to r7, cells grow from 8 to 128, mean demand falls from 357 to 22, and the zero-rate climbs from 1% to 49%. R² weakens accordingly. Raw MAE falls but it í because finer cells hold fewer trips, hence cross-resolution comparisons should rely on R²/nMAE, not raw MAE. Community Area (77 cells, R² 0.69–0.77) sits between r6 and r7. This results shows that finer resolution gives more localized signals but degrades reliability once cells sparsify. r6 (or Community Area) is the more defensible operating resolution for fleet decisions than r7, which has low R² means predictions there are largely noise. However, it should be noted that the per-resolution Neural Network is a single refit and underperforms its tuned version. 
+Regarding spatial sensitivity, the granularity–sparsity trade-off is clear. From r5 to r7, the number of cells grows from 8 to 128, mean demand falls from 357 to 22, and the zero-rate climbs from 1% to 49%. R² weakens accordingly. Raw MAE falls because finer cells hold fewer trips; hence, cross-resolution comparisons should rely on R²/nMAE, not raw MAE. Community Area (77 cells, R² 0.69–0.77) sits between r6 and r7. This result shows that finer resolution gives more localized signals but degrades reliability once cells become sparse. R6 (or Community Area) is the more defensible operating resolution for fleet decisions than r7, where the low R² indicates limited explanatory power. However, it should be noted that the per-resolution neural network is a single refit and underperforms its tuned version.
 
 {Note: add result table in the Appendix}
 
@@ -83,6 +88,22 @@ Therefore, deep learning is clearly worth it here: the NN is the only model that
 {Note: add result table in the Appendix}
 
 ## Smart Charging Using	Reinforcement Learning
+
+### MDP and model setup
+
+The assignment's two-hour home-charging window is divided into eight 15-minute decisions. The state contains the slot and battery charge; actions are 0, 7, 14, or 22 kW, and 60 kWh is chosen as the battery-capacity parameter. Energy demand is modelled as `max(0, D)`, where `D` is normal with mean 21.4 kWh and standard deviation 14.1 kWh. These parameters are derived from pooled taxi-day distances using an assumed conversion of 0.40 kWh/mile. Slot cost is `alpha_t * (exp(0.1 * power) - 1)`. A shortfall incurs 20 plus 9.54 per missing kWh. The first day starts at 5 kWh; as an extension to the single-day setup, later days start with the preceding day's remainder.
+
+### Learning approach
+
+Tabular Q-learning uses the slot and battery charge, snapped to a 0.5 kWh grid, with the four charging actions. It is trained for 200,000 simulated days using epsilon-greedy exploration; epsilon decreases from 1.0 to 0.02 and the learning rate decays. Future rewards are undiscounted within a day and discounted by 0.95 at the day boundary. Dynamic programming (DP) uses the same action set and battery grid and converges after 187 iterations. However, DP also approximates demand on an 81-point grid that does not reproduce the simulator's clipped normal distribution exactly. DP is therefore an approximate model-based reference, not proof of the exact optimum in the simulation environment.
+
+### Results and comparison
+
+All policies are evaluated for 5,000 days using the same random seed and hence the same demand sequence. The DP policy has the lowest average charging-cost value, 1.0521, and the second-lowest shortfall rate, 0.52%. Q-learning reaches 1.3191 and 3.02%. Constant-medium charging reaches 1.2844 and 3.90%, so, based on the reported values, Q-learning reduces shortfall by 0.88 percentage points for 0.0347 additional charging cost. Maximum charging has the lowest shortfall rate, 0.46%, but costs 3.3737; the cheapest-slots heuristic reaches 2.1106 and 1.44%. Thus, Q-learning improves reliability over constant-medium charging but does not dominate all baselines. Because the output omits penalty-inclusive return, it supports a cost-reliability comparison rather than a complete ranking by the training objective.
+
+### Implications and limitations
+
+The sensitivity analysis re-solves DP for each setting and evaluates each resulting policy over 2,000 days. Increasing demand's standard deviation from 5 to 20 kWh raises average charging cost from 0.8056 to 1.3114 and shortfall from 0.10% to 3.60%. Raising both penalty components from 0.5 to 4 times their base values increases charging cost from 1.0460 to 1.1248 and reduces shortfall from 0.45% to 0.25%. Tested battery capacities of 40, 60, and 80 kWh produce observed shortfall rates of 9.20%, 0.15%, and 0.00%, respectively. These are model outcomes, not dollar costs or real-world forecasts. They depend on the chosen penalty, assumed energy conversion, clipped normal demand, stylised prices, fixed charging window, and omission of charging losses, public charging, battery degradation, and fleet interactions.
 
 # Discussion & Outlook
 
