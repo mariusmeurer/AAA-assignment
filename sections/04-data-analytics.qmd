@@ -107,6 +107,31 @@ The sensitivity analysis re-solves DP for each setting and evaluates each result
 
 # Discussion & Outlook
 
-## Task 3.8c, d
-    + Improvement levers for a follow-up project
-    + A non-technical translation of the chosen model's error into a fleet-operations implication
+## Implications for the fleet operator
+
+For the client, the main implication is that market entry should start with a focused operating area rather than immediate city-wide coverage. The cleaned Chicago taxi data, enriched with weather data and aggregated to H3 r6 x 4h, shows that demand is strongly structured by time and location. Central areas and airport-related zones require different operating logic: dense downtown areas support frequent short trips and high turnover, while airport trips are longer, more range-sensitive, and operationally more demanding. Since taxis are only a proxy for ride-hailing demand, these findings should not be transferred blindly to another market, but the pipeline can be reused for the actual target city.
+
+Strategically, the operator should first cover persistent demand centres and the corridors between them. Tactically, the tuned neural network is the preferred demand model because it performs best against the historical-mean benchmark, while H3 r6 x 4h offers a practical compromise between operational detail and sparsity. However, the prediction target is trip demand, not fleet size. Fleet requirements still depend on trip duration, idle time, vehicle productivity, target service levels, repositioning, and charging downtime.
+
+## Further analyses using the existing data
+
+The most important next step is to translate predicted demand into vehicle requirements. The available taxi data already contains trip duration, idle time, and taxi identifiers, which could be used to estimate how many trips one active vehicle can realistically serve per area and time bucket. Combining this productivity estimate with predicted demand would provide a first fleet-sizing model, including reserve capacity for peaks and prediction errors.
+
+A second extension is a simple fleet simulation. Origin-destination flows can be used to model where vehicles accumulate, where shortages occur, and how much empty repositioning is needed. This would connect the descriptive flow analysis with the predictive demand model and the smart-charging component. Instead of only asking where demand occurs, the operator could evaluate whether enough vehicles are available in the right places at the right times.
+
+Further model validation should focus on robustness. Rolling time-based validation, prediction intervals, and residual analysis would show whether the model remains reliable across seasons, weather conditions, and unusual demand periods. This matters because operational planning depends not only on average performance, but also on how badly the model fails in peak situations.
+
+## Additional external data sources
+
+Several external data sources could improve the analysis. Point-of-Interest data from OpenStreetMap would be especially useful, because offices, airports, transit stations, hotels, residential areas, and entertainment venues help explain why demand differs between spatial cells. Event calendars, public holidays, traffic speeds, road closures, and public-transport disruptions could further improve demand and travel-time predictions.
+
+For the charging part, the current model should be extended with real vehicle and infrastructure data. Relevant sources include vehicle telematics, battery state-of-charge records, energy consumption by trip type, home or depot availability, electricity tariffs, grid constraints, and public charger data. Public charger data should include location, power level, price, utilisation, waiting times, and outages. Without this information, the charging model should be interpreted as a controlled proof of concept rather than a final infrastructure decision.
+
+## Charging infrastructure recommendation
+
+The results support a hybrid charging strategy. Private charging should form the operational backbone because it offers more control over timing, availability, and cost. The smart-charging model shows that scheduled charging can maintain high reliability without always using maximum power. This is especially valuable for vehicles with predictable home or depot charging windows.
+
+Public charging should complement private charging rather than replace it. It is useful as a reserve option for unexpectedly high energy demand, low starting charge, vehicles operating far away from private chargers, or peak-demand days where normal charging windows are insufficient. However, public charging introduces uncertainty through detours, waiting times, charger availability, and price variation, none of which are fully captured in the current model.
+
+Therefore, the client should not decide immediately between fully private or fully public charging. A sensible next step is a pilot in the target market. The pilot should collect local ride-hailing demand, vehicle utilisation, energy consumption, charging behaviour, and public charging reliability data. Based on this evidence, the operator can size a private charging backbone and define how much public charging capacity is needed as flexible backup.
+
