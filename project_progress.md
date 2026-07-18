@@ -51,3 +51,19 @@ The project progress, outcomes of meetings and ToDos are written down here.
 - writing chapter 4 (Huyen)
 
 # Meeting #7 (09.07.26) 7:30pm
+
+- Huyen checks all notebooks on consistency. So do we really answer every question of the tasks perfectly in each chapter? Also think about the notebook structure. Do we really need to split them up? Please also consider, that we do not have any double imports e.g. That is really obviously just AI. Furthermore update the README and test it to be sure it really works out.
+- Marius would rewrite chapter 1 to 3. So check everything and write a final version. 
+- Georgios could also quality check chapter 4 and rewrite. 
+- Kati could maybe do task 5 in our repo & also include this in chapter 5, so write chapter 5 in our report. 
+
+
+# Meeting #8 (15.07.26) 8pm
+
+...
+
+## To Do 
+- Kati finalize notebooks
+- Georgios then chapter 5 & Read-me
+- Marius to check chapter 4 
+- Huyen to check chapter 1-3
