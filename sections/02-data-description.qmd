@@ -1,6 +1,28 @@
 # Data description
-**Primary data: Chicago taxi trips.** The project's core dataset is the City of Chicago *Taxi Trips (2024–)* public record, used as a proxy for ride-hailing demand. It contains roughly 14.4 million individual trips spanning January 2024 to early April 2026 (extracted May 2026), with one row per trip and 23 raw columns. Each record provides an anonymised vehicle identifier (`Taxi ID`), start and end timestamps rounded to 15-minute intervals, trip duration in seconds (`Trip Seconds`) and distance in miles (`Trip Miles`), the operating company and payment type, and a fare breakdown (`Fare`, `Tips`, `Tolls`, `Extras`, `Trip Total`). Location is recorded at three nested spatial levels: Census Tract, Community Area (Chicago's 77 administrative neighbourhoods), and pickup/dropoff centroid latitude-longitude. For privacy reasons the city suppresses the Census Tract for trips in sparsely travelled areas (missing for about 56% of pickups) and rounds timestamps. This directly shapes which fields are usable as spatial units (see Data preparation). For demand modelling, only the pickup-side time and location fields are required.
 
-**External weather data.** Because weather is a strong short-term driver of mobility, the trip data is enriched with historical weather for Chicago from the Open-Meteo Historical Weather API (lat 41.85, lon -87.65), at hourly and daily resolution over the same 2024-2026 window. The variables include 2 m air temperature in F°, precipitation, rain and snowfall in inches, wind speed in mph, and the WMO weather code, plus daily sunshine duration and precipitation duration in hours. These are aligned to the trip timestamps so that weather-driven demand variation is not misattributed to the calendar.
+We draw on three datasets. The primary source is the *Taxi Trips (2024-)* record published by the City of Chicago on its open data portal, holding 14,802,849 trips across 23 fields. It spans 1 January 2024 to 31 March 2026 and covers 3,735 vehicles, 46 licensed taxi companies and all 77 of Chicago's community areas. To this we add historical weather for Chicago from the Open-Meteo API, at hourly resolution (19,728 observations of temperature, precipitation, rain, snowfall, wind speed and a categorical WMO weather code) alongside 822 daily aggregates that add sunshine duration and the number of precipitation hours. A GeoJSON of the 77 community-area boundaries supplies the geometry used to map and aggregate trips spatially. We decided against point-of-interest extensions, as the records already at hand cover the questions set out in Section 1, so the expected analytical gain did not justify the additional integration effort.
 
-**Spatial reference.** A GeoJSON of Chicago's 77 community-area boundaries provides the geometry used to map and aggregate trips spatially and to anchor the H3 hexagonal grid introduced in the next section.
+Each row represents one completed taxi trip. Location is reported at three nested levels, census tract within community area, plus a centroid coordinate pair. The 23 fields group as follows, with the full field-by-field dictionary given in the Appendix; for demand modelling only the pickup-side time and location fields are required.
+
+```{=latex}
+\renewcommand{\arraystretch}{1.25}
+```
+
+| **Group** | **Fields** | **Notes** |
+|:------------|:------------------------------------------------------|:----------------------------------|
+| Identifiers | Trip ID, Taxi ID, Company | 3,735 vehicles, 46 companies |
+| Time | Trip Start / Trip End Timestamp | rounded to 15-minute bins |
+| Trip metrics | Trip Seconds, Trip Miles | duration and distance |
+| Space | Pickup / Dropoff Census Tract, Community Area, Centroid Latitude, Longitude and Location | coordinates are area centroids, not exact points |
+| Money | Fare, Tips, Tolls, Extras, Trip Total | 0.21% missing |
+| Payment | Payment Type | |
+
+: Structure of the raw Chicago taxi trip records: the 23 fields grouped by type, with the defining characteristics of each group. {#tbl-taxi-fields}
+
+```{=latex}
+\renewcommand{\arraystretch}{1}
+```
+
+Two structural properties shape everything that follows. First, all timestamps are rounded to quarter-hour bins, taking only the minute values 0, 15, 30 and 45, which sets a hard floor on the temporal resolution any analysis can achieve. Second, location is restricted for privacy rather than by measurement: no exact coordinates are published, and the coordinate fields give the centroid of the enclosing area. Tract identifiers are further suppressed for the majority of trips, missing in 55.65% of pickups and 56.98% of dropoffs, whereas the community area is far more complete, missing in 2.79% and 8.92% of cases. Because suppression applies wherever a combination of tract and time holds too few trips to guarantee anonymity, it removes precisely the sparse observations and is therefore correlated with demand density. Analysis at tract level would be biased towards dense areas, which is why the choice of spatial unit in the next section cannot simply default to the finest available geography.
+
+Two limitations remain. The raw records contain recording artefacts, most visibly trips of zero distance or zero duration, which we quantify and address in the next section. More fundamentally, the dataset captures served demand only: requests that went unmet leave no trace, so the data understate true demand in exactly those places and periods where supply was scarce.
