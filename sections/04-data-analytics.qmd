@@ -2,9 +2,11 @@
 
 ## Descriptive Analytics
 
-City-wide demand follows a two-peak daily pattern, with the strongest peak around 5pm. Weekdays are busier than weekends, while demand also varies seasonally and weather adds a smaller secondary effect. The downtown core produces many short, high-throughput trips, whereas the airports produce fewer but longer and higher-value trips. Origin-destination flows are asymmetric and idle time is highest in low-demand periods and peripheral areas. These patterns are consistent with commuting, business activity, nightlife, and airport travel, but remain descriptive rather than causal findings.
+In terms of temporal dimension, city-wide demand follows a two-peak daily pattern, with the strongest peak around 5pm. Weekdays are busier than weekends, while demand also varies seasonally and weather adds a smaller secondary effect (See appendix @fig-taxi-demand-by-hour-of-day-weekday-vs-weekend and @fig-seasonal-demand-profile). Warmer weather and rain both lift demand, while heavy snow suppresses it. This effect is real even after controlling for time of day (See appendix @fig-demand-vs-temperature, @fig-demand-vs-snow-intensity, @fig-demand-vs-precipitation-intensity).
 
-The GMM and KDE show strong concentrations around central Chicago and the airport areas. Across resolutions, coarse spatial or daily aggregation loses operational detail, while fine hexagons and hourly bins produce many empty observations. H3 r6 x 4h provides the best compromise between operational detail and sparsity and is therefore carried into predictive modelling.
+A small number of areas (the Loop and Near North downtown core, and the two airports O'Hare and Midway) account for a large share of all pickups. The downtown core produces many short, high-throughput trips, whereas the airports produce fewer but longer and higher-value trips. Origin-destination flows are asymmetric and idle time is highest in low-demand periods and peripheral areas. These patterns are consistent with commuting, business activity, nightlife, and airport travel, but remain descriptive rather than causal findings.
+
+The GMM and KDE show strong concentrations around central Chicago and the airport areas (See @fig-gmm and @fig-kde). Across resolutions, coarse spatial or daily aggregation loses operational detail, while fine hexagons and hourly bins produce many empty observations (See @fig-total-pickups-per-cell). H3 r6 x 4h provides the best compromise between operational detail and sparsity and is therefore carried into predictive modelling.
 
 ## Predictive Analytics
 
@@ -34,11 +36,11 @@ To evaluate model performance, we use three metrics: Mean Absolute Error (MAE), 
 
 ### Support vector machines
 
-First, a linear support vector regressor is fitted as a simple baseline. A small grid search selects `C = 0.1` and `epsilon = 0.2`. On the holdout set, the linear SVM achieves MAE 65.56, RMSE 203.49, and R² 0.633. As a linear model, it cannot capture nonlinear interactions between location and time, which contributes to its larger errors during demand peaks. 
+First, a linear support vector regressor is fitted as a simple baseline. A small grid search selects `C = 0.1` and `epsilon = 0.2`. `C` defines the strong penalty on model complexity while epsilon defines a tolerance margin around each prediction within which errors are ignored, so the model is penalized only for deviations larger than this margin. On the holdout set, the linear SVM achieves MAE 65.56, RMSE 203.49, and R² 0.633. As a linear model, it cannot capture nonlinear interactions between location and time, which contributes to its larger errors during demand peaks. 
 
-Second, an RBF kernel is introduced to capture nonlinear relationships between time, location, and weather. The three-fold grouped grid search is run on a random 120-day development subsample because kernel SVMs are computationally expensive. The selected parameters are `C = 10`, `gamma = 0.1`, and `epsilon = 0.1`. The RBF-SVM improves holdout performance to MAE 30.83, RMSE 118.86, and R² 0.875.
+Second, an RBF kernel is introduced to capture nonlinear relationships between time, location, and weather. The three-fold grouped grid search is run on a random 120-day development subsample because kernel SVMs are computationally expensive. The selected parameters are `C = 10`, `epsilon = 0.1`, and `gamma = 0.1` (controlling how far the influence of a single training point reaches). The RBF-SVM improves holdout performance to MAE 30.83, RMSE 118.86, and R² 0.875.
 
-Its main shortfalls are computational cost and limited scalability. The selected RBF estimator is not refitted on the full development set, takes approximately 18 seconds to score the holdout, and does not outperform the historical-mean benchmark (MAE 29.14, RMSE 107.13, R² 0.898).
+Its main shortfalls are computational cost and limited scalability. The selected RBF estimator is not refitted on the full development set, takes approximately 18 seconds to score the holdout, and does not outperform the historical-mean benchmark (MAE 29.14, RMSE 107.13, R² 0.898), suggesting that within this spatio-temporal resolution, most predictable demand variation is already captured by historical averages, and the added model complexity yields limited marginal value.
 
 ### Neural networks
 

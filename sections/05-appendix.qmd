@@ -10,11 +10,25 @@
 | R7 | ~5.2 km² | Neighborhood |
 | R8 | ~0.74 km² | A few city blocks |
 
-Need to add: percentage of zero cells for each combination of temporal, spatial unit
+![Taxi demand by hour of day - weekday vs weekend](assets/taxi-demand-by-hour-of-day-weekday-vs-weekend.png){#fig-taxi-demand-by-hour-of-day-weekday-vs-weekend}
+
+![Total pickups per cell](assets/total-pickups-per-cell.png){#fig-total-pickups-per-cell}
+
+![Seasonal demand profile](assets/seasonal-demand-profile.png){#fig-seasonal-demand-profile}
+
+![GMM](assets/gmm.png){#fig-gmm}
+
+![KDE](assets/kde.png){#fig-kde}
+
+![Demand vs temperature](assets/demand-vs-weather.png){#fig-demand-vs-temperature}
+
+![Demand vs snow intensity](assets/demand-vs-snow-intensity.png){#fig-demand-vs-snow-intensity}
+
+![Demand vs precipitation intensity](assets/demand-vs-precipitation-intensity.png){#fig-demand-vs-precipitation-intensity}
 
 
 ## Baseline Neural Network Architecture
-![Model architecture](assets/Appendix - nn_architecture.png)
+![Model architecture](assets/Appendix - nn_architecture.png){#fig-nn-architecture}
 
 ## candidate values of hyperparameters for tuning Neural Network model
 
@@ -26,12 +40,12 @@ Need to add: percentage of zero cells for each combination of temporal, spatial 
 | `batch_size`    | 256, 512                    |
 
 ## Baseline Neural Network model result
-![Model result - Neural network baseline model](assets/Appendix - NN model - baseline.png)
+![Model result - Neural network baseline model](assets/Appendix - NN model - baseline.png){#fig-nn-baseline-result}
 
 ## Best Neural Network model
 
-![Model result - Neural network tuning model](assets/Appendix - NN model.png)
+![Model result - Neural network tuning model](assets/Appendix - NN model.png){#fig-nn-tuned-result}
 
 ## Feature importance - SHAP - of best Neural Network model
 
-![SHAP feature importance](assets/SHAP.png)
+![SHAP feature importance](assets/SHAP.png){#fig-shap}
