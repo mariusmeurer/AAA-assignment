@@ -56,7 +56,7 @@ Thumbs.db
 **/*.quarto_ipynb
 
 # project specific gitignore file
-/data/
+/data/Taxi_Trips_(2024-)_20260502.csv
 /processed/
 
 # Byte-compiled / optimized / DLL files
