@@ -54,7 +54,7 @@ The canonical notebooks for the current analysis are:
 - `task1/Task1_optimized.ipynb`
 - `task2/Task2_optimized.ipynb`
 - `task3/Task3_optimized.ipynb`
-- `taks4/xyz.ipynb`
+- `taks4/task4.ipynb`
 
 
 
@@ -177,11 +177,7 @@ The report is assembled from `report.qmd` and the chapter files in `sections/`. 
 quarto render report.qmd --to pdf
 ```
 
-The generated report is written to:
-
-```text
-docs/report.pdf
-```
+The generated report is available at [docs/report.pdf](docs/report.pdf).
 
 The Quarto report uses the saved text, tables, and figures in the repository; rendering the report does not rerun the analysis notebooks. Rerun the relevant notebooks first only when their results need to be updated, then ensure that the corresponding report text and figures are updated as well.
 
