@@ -67,6 +67,7 @@ The expected contents are:
 ```text
 data/
 |-- Taxi_Trips_(2024-)_20260502.csv   Download separately (not tracked)
+|-- Taxi_Trips_(2024-)_20260502_sample.csv   Included sample for a test run
 |-- chicago_weather_hourly.csv        Included
 |-- chicago_weather_daily.csv         Included
 |-- chicago_community_areas.geojson   Included
@@ -76,13 +77,27 @@ data/
 
 ### Chicago taxi trips
 
-The taxi-trip CSV is the only input file that is not included in the repository. Download the official [Taxi Trips (2024-)](https://data.cityofchicago.org/Transportation/Taxi-Trips-2024-/ajtu-isnz) dataset from the City of Chicago Data Portal. The analysis uses the period from 1 January 2024 through 31 March 2026. Apply this date range before exporting the CSV and save it as:
+**Full-data run.** To reproduce the analysis with the complete data, download the official [Taxi Trips (2024-)](https://data.cityofchicago.org/Transportation/Taxi-Trips-2024-/ajtu-isnz) dataset from the City of Chicago Data Portal. The analysis uses the period from 1 January 2024 through 31 March 2026. Apply this date range before exporting the CSV and save it as:
 
 ```text
 data/Taxi_Trips_(2024-)_20260502.csv
 ```
 
 Task 1 reads the complete 6.9-GB file and therefore requires sufficient disk space and memory.
+
+**Sample run.** If the complete dataset is unavailable, rename the included sample
+
+```text
+data/Taxi_Trips_(2024-)_20260502_sample.csv
+```
+
+to the filename expected by Task 1:
+
+```text
+data/Taxi_Trips_(2024-)_20260502.csv
+```
+
+Then execute the notebooks in the order described below. The sample is intended to verify that the workflow runs; results calculated from it will not reproduce the values in the report.
 
 ### Weather data
 
