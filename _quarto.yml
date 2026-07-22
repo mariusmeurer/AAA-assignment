@@ -23,6 +23,7 @@ format:
     biblio-style: apa
     toc: true
     lof: true
+    lot: true
     number-sections: true
     execute:
       echo: false

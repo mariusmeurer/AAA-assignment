@@ -1,51 +1,90 @@
 # Appendix
 
-## H3 hexagon area corresponding to specific resolution
+## Field dictionary of the raw trip records
 
-| Resolution | Avg Area | Rough Scale |
-|:---|---:|:---|
-| R4 | ~1,770 km² | Large city / metro region |
-| R5 | ~253 km² | City district |
-| R6 | ~36 km² | Large neighborhood |
-| R7 | ~5.2 km² | Neighborhood |
-| R8 | ~0.74 km² | A few city blocks |
+The main text groups the 23 raw fields by type for readability. The table below resolves that grouping into the individual fields, giving for each its name as published, its data type, its unit where applicable, and a short description, so that no question about the source data remains open.
 
-![Taxi demand by hour of day - weekday vs weekend](assets/taxi-demand-by-hour-of-day-weekday-vs-weekend.png){#fig-taxi-demand-by-hour-of-day-weekday-vs-weekend}
+*[Placeholder: full field-by-field table for the 23 raw columns, with name, type, unit and description.]*
 
-![Total pickups per cell](assets/total-pickups-per-cell.png){#fig-total-pickups-per-cell}
+## Validation rules and thresholds
 
-![Seasonal demand profile](assets/seasonal-demand-profile.png){#fig-seasonal-demand-profile}
+Section 3 distinguishes records that cannot describe a real journey, which are excluded outright, from those implausible in a single attribute, which are retained as demand events but withheld from the statistics they would distort. The table below lists every rule applied, the threshold chosen, the number of records affected and whether the rule acts as a hard exclusion or a soft one.
 
-![GMM](assets/gmm.png){#fig-gmm}
+*[Placeholder: table of validation rules with threshold, affected record count and hard or soft scope.]*
 
-![KDE](assets/kde.png){#fig-kde}
+## Spatial resolution reference
 
-![Demand vs temperature](assets/demand-vs-weather.png){#fig-demand-vs-temperature}
+```{=latex}
+\renewcommand{\arraystretch}{1.25}
+```
 
-![Demand vs snow intensity](assets/demand-vs-snow-intensity.png){#fig-demand-vs-snow-intensity}
+| **Resolution** | **Average area** | **Rough scale** |
+|:---------------|-----------------:|:----------------|
+| r4 | 1,770.3 km² | Large city or metro region |
+| r5 | 252.9 km² | City district |
+| r6 | 36.1 km² | Large neighbourhood |
+| r7 | 5.2 km² | Neighbourhood |
+| r8 | 0.7 km² | A few city blocks |
 
-![Demand vs precipitation intensity](assets/demand-vs-precipitation-intensity.png){#fig-demand-vs-precipitation-intensity}
+: Average cell area of each H3 resolution with an intuitive scale equivalent. {#tbl-h3-areas}
 
+```{=latex}
+\renewcommand{\arraystretch}{1}
+```
 
-## Baseline Neural Network Architecture
-![Model architecture](assets/Appendix - nn_architecture.png){#fig-nn-architecture}
+## Descriptive analytics
 
-## candidate values of hyperparameters for tuning Neural Network model
+![Taxi demand by hour of day, split into weekdays and weekends. The line view complements the heatmap in Section 4.1 by showing the shape of the two profiles directly against one another.](assets/taxi-demand-by-hour-of-day-weekday-vs-weekend.png){#fig-taxi-demand-by-hour-of-day-weekday-vs-weekend fig-scap="Taxi demand by hour of day, weekday against weekend" fig-pos="H"}
 
-| Parameter       | Candidate Values           |
-|-----------------|-----------------------------|
-| `hidden_sizes`  | (64, 32), (128, 64, 32)     |
-| `dropout`       | 0.1, 0.2                    |
-| `lr`            | 1e-3, 5e-4                  |
-| `batch_size`    | 256, 512                    |
+![Seasonal demand profile across the observation period, showing the amplitude between the quiet winter months and the summer peak.](assets/seasonal-demand-profile.png){#fig-seasonal-demand-profile fig-scap="Seasonal demand profile" fig-pos="H"}
 
-## Baseline Neural Network model result
-![Model result - Neural network baseline model](assets/Appendix - NN model - baseline.png){#fig-nn-baseline-result}
+![Demand against temperature, aggregated to four-hour windows. The association remains when windows are compared within the same time of day.](assets/demand-vs-weather.png){#fig-demand-vs-temperature fig-scap="Demand against temperature" fig-pos="H"}
 
-## Best Neural Network model
+![Demand against precipitation intensity, aggregated to four-hour windows.](assets/demand-vs-precipitation-intensity.png){#fig-demand-vs-precipitation-intensity fig-scap="Demand against precipitation intensity" fig-pos="H"}
 
-![Model result - Neural network tuning model](assets/Appendix - NN model.png){#fig-nn-tuned-result}
+![Demand against snowfall intensity, restricted to winter months. The windows with heavy snowfall are too few to support a conclusion, which is why Section 4.1 reports no reliable effect.](assets/demand-vs-snow-intensity.png){#fig-demand-vs-snow-intensity fig-scap="Demand against snowfall intensity" fig-pos="H"}
 
-## Feature importance - SHAP - of best Neural Network model
+![Gaussian mixture model fitted to the raw pickup coordinates. Because the model uses no grid, its component centres identify demand cores independently of the hexagon discretisation.](assets/gmm.png){#fig-gmm fig-scap="Gaussian mixture model on raw pickup coordinates" fig-pos="H"}
 
-![SHAP feature importance](assets/SHAP.png){#fig-shap}
+![Kernel density estimate of pickup density. Unlike the mixture components, it shows the continuous density gradient rather than discrete centres.](assets/kde.png){#fig-kde fig-scap="Kernel density estimate of pickup density" fig-pos="H"}
+
+## Feature definitions
+
+The predictive models use eighteen features. The table below defines each one, stating how it is derived from the demand panel and why it is included, in particular the cyclical encoding of the calendar quantities and the great-circle distances to the three demand centres.
+
+*[Placeholder: table of the eighteen model features with derivation and rationale.]*
+
+## Resolution sensitivity results
+
+Section 4.2 reports the direction of the resolution effects and the values at the decisive points. The two tables below give the complete sweeps, spatially across r5, r6, r7, community areas and census tracts at fixed four-hour windows, and temporally across one-hour, four-hour, eight-hour and daily windows at fixed H3 r6. Both report cell count, zero rate, mean demand, MAE, normalised MAE, RMSE and R² for each model. Note that these refits reuse the tuned configuration rather than repeating the search at every resolution, so they are comparable across resolutions but not directly against the holdout results in the main text.
+
+*[Placeholder: spatial and temporal resolution sweep tables.]*
+
+## Neural network specification and diagnostics
+
+The tuning grid below is deliberately small, since the search runs inside grouped cross-validation and is repeated within each fold.
+
+![Architecture of the baseline neural network, showing layer sizes and the arrangement of the feedforward stack.](assets/Appendix - nn_architecture.png){#fig-nn-architecture fig-scap="Architecture of the baseline neural network" fig-pos="H"}
+
+```{=latex}
+\renewcommand{\arraystretch}{1.25}
+```
+
+| **Parameter** | **Candidate values** |
+|:--------------|:---------------------|
+| `hidden_sizes` | (64, 32), (128, 64, 32) |
+| `dropout` | 0.1, 0.2 |
+| `lr` | 1e-3, 5e-4 |
+| `batch_size` | 256, 512 |
+
+: Candidate values searched when tuning the neural network. {#tbl-nn-grid}
+
+```{=latex}
+\renewcommand{\arraystretch}{1}
+```
+
+![Training result of the baseline neural network, before hyperparameter tuning.](assets/Appendix - NN model - baseline.png){#fig-nn-baseline-result fig-scap="Training result of the baseline neural network" fig-pos="H"}
+
+![Training result of the tuned neural network, the configuration carried into the holdout comparison.](assets/Appendix - NN model.png){#fig-nn-tuned-result fig-scap="Training result of the tuned neural network" fig-pos="H"}
+
+![SHAP feature importance for the tuned neural network, showing the distances to the demand centres and the time-of-day terms dominating the prediction.](assets/SHAP.png){#fig-shap fig-scap="SHAP feature importance for the tuned neural network" fig-pos="H"}

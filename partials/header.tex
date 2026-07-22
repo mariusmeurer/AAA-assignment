@@ -35,3 +35,13 @@
 
 % Define placeholders for metadata used in header/footer
 \providecommand{\headerauthor}{}
+
+% Table spacing: tighten the space around long tables so a short table plus its
+% bottom rule is less likely to be pushed past a page break, which would emit an
+% empty repeated header on the following page.
+% Allow figures to be pinned exactly where they appear in the source (fig-pos=H)
+\usepackage{float}
+
+\usepackage{longtable}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{6pt}
