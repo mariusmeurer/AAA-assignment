@@ -83,8 +83,8 @@ The tuning grid below is deliberately small, since the search runs inside groupe
 \renewcommand{\arraystretch}{1}
 ```
 
-![Training result of the baseline neural network, before hyperparameter tuning.](assets/Appendix - NN model - baseline.png){#fig-nn-baseline-result fig-scap="Training result of the baseline neural network" fig-pos="H"}
+![Training result of the baseline neural network, before hyperparameter tuning.](assets/Appendix_NN_baseline.png){#fig-nn-baseline-result fig-scap="Training result of the baseline neural network" fig-pos="H"}
 
-![Training result of the tuned neural network, the configuration carried into the holdout comparison.](assets/Appendix - NN model.png){#fig-nn-tuned-result fig-scap="Training result of the tuned neural network" fig-pos="H"}
+![Training result of the tuned neural network, the configuration carried into the holdout comparison.](assets/Appendix_NN_tuned.png){#fig-nn-tuned-result fig-scap="Training result of the tuned neural network" fig-pos="H"}
 
 ![SHAP feature importance for the tuned neural network, showing the distances to the demand centers and the time-of-day terms dominating the prediction.](assets/SHAP.png){#fig-shap fig-scap="SHAP feature importance for the tuned neural network" fig-pos="H"}
