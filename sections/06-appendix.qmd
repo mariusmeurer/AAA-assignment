@@ -22,8 +22,8 @@ Section 3 distinguishes records that cannot describe a real journey, which are e
 |:---------------|-----------------:|:----------------|
 | r4 | 1,770.3 km² | Large city or metro region |
 | r5 | 252.9 km² | City district |
-| r6 | 36.1 km² | Large neighbourhood |
-| r7 | 5.2 km² | Neighbourhood |
+| r6 | 36.1 km² | Large neighborhood |
+| r7 | 5.2 km² | Neighborhood |
 | r8 | 0.7 km² | A few city blocks |
 
 : Average cell area of each H3 resolution with an intuitive scale equivalent. {#tbl-h3-areas}
@@ -44,19 +44,19 @@ Section 3 distinguishes records that cannot describe a real journey, which are e
 
 ![Demand against snowfall intensity, restricted to winter months. The windows with heavy snowfall are too few to support a conclusion, which is why Section 4.1 reports no reliable effect.](assets/demand-vs-snow-intensity.png){#fig-demand-vs-snow-intensity fig-scap="Demand against snowfall intensity" fig-pos="H"}
 
-![Gaussian mixture model fitted to the raw pickup coordinates. Because the model uses no grid, its component centres identify demand cores independently of the hexagon discretisation.](assets/gmm.png){#fig-gmm fig-scap="Gaussian mixture model on raw pickup coordinates" fig-pos="H"}
+![Gaussian mixture model fitted to the raw pickup coordinates. Because the model uses no grid, its component centers identify demand cores independently of the hexagon discretization.](assets/gmm.png){#fig-gmm fig-scap="Gaussian mixture model on raw pickup coordinates" fig-pos="H"}
 
-![Kernel density estimate of pickup density. Unlike the mixture components, it shows the continuous density gradient rather than discrete centres.](assets/kde.png){#fig-kde fig-scap="Kernel density estimate of pickup density" fig-pos="H"}
+![Kernel density estimate of pickup density. Unlike the mixture components, it shows the continuous density gradient rather than discrete centers.](assets/kde.png){#fig-kde fig-scap="Kernel density estimate of pickup density" fig-pos="H"}
 
 ## Feature definitions
 
-The predictive models use eighteen features. The table below defines each one, stating how it is derived from the demand panel and why it is included, in particular the cyclical encoding of the calendar quantities and the great-circle distances to the three demand centres.
+The predictive models use eighteen features. The table below defines each one, stating how it is derived from the demand panel and why it is included, in particular the cyclical encoding of the calendar quantities and the great-circle distances to the three demand centers.
 
 *[Placeholder: table of the eighteen model features with derivation and rationale.]*
 
 ## Resolution sensitivity results
 
-Section 4.2 reports the direction of the resolution effects and the values at the decisive points. The two tables below give the complete sweeps, spatially across r5, r6, r7, community areas and census tracts at fixed four-hour windows, and temporally across one-hour, four-hour, eight-hour and daily windows at fixed H3 r6. Both report cell count, zero rate, mean demand, MAE, normalised MAE, RMSE and R² for each model. Note that these refits reuse the tuned configuration rather than repeating the search at every resolution, so they are comparable across resolutions but not directly against the holdout results in the main text.
+Section 4.2 reports the direction of the resolution effects and the values at the decisive points. The two tables below give the complete sweeps, spatially across r5, r6, r7, community areas and census tracts at fixed four-hour windows, and temporally across one-hour, four-hour, eight-hour and daily windows at fixed H3 r6. Both report cell count, zero rate, mean demand, MAE, normalized MAE, RMSE and R² for each model. Note that these refits reuse the tuned configuration rather than repeating the search at every resolution, so they are comparable across resolutions but not directly against the holdout results in the main text.
 
 *[Placeholder: spatial and temporal resolution sweep tables.]*
 
@@ -87,4 +87,4 @@ The tuning grid below is deliberately small, since the search runs inside groupe
 
 ![Training result of the tuned neural network, the configuration carried into the holdout comparison.](assets/Appendix - NN model.png){#fig-nn-tuned-result fig-scap="Training result of the tuned neural network" fig-pos="H"}
 
-![SHAP feature importance for the tuned neural network, showing the distances to the demand centres and the time-of-day terms dominating the prediction.](assets/SHAP.png){#fig-shap fig-scap="SHAP feature importance for the tuned neural network" fig-pos="H"}
+![SHAP feature importance for the tuned neural network, showing the distances to the demand centers and the time-of-day terms dominating the prediction.](assets/SHAP.png){#fig-shap fig-scap="SHAP feature importance for the tuned neural network" fig-pos="H"}
