@@ -24,8 +24,8 @@ We begin with a linear support vector regressor as a kernel-free baseline, add a
 
 | **Model** | **R²** | **MAE** | **RMSE** | **Inference** |
 |:-----------------------------------|----------:|----------:|-----------:|--------------:|
-| Linear SVM | 0.633 | 65.56 | 203.49 | 0.03 s |
-| RBF SVM | 0.875 | 30.83 | 118.86 | 29.18 s |
+| Linear SVM | 0.656 | 64.10 | 196.92 | 0.03 s |
+| RBF SVM | 0.875 | 30.83 | 118.91 | 29.18 s |
 | Neural network, baseline | 0.926 | 26.75 | 91.36 | 0.01 s |
 | Neural network, tuned | 0.957 | 19.35 | 69.93 | 0.01 s |
 | Naive benchmark (historical mean) | 0.898 | 29.14 | 107.13 | |
