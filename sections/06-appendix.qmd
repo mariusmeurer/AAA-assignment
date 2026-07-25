@@ -2,15 +2,67 @@
 
 ## Field dictionary of the raw trip records
 
-The main text groups the 23 raw fields by type for readability. The table below resolves that grouping into the individual fields, giving for each its name as published, its data type, its unit where applicable, and a short description, so that no question about the source data remains open.
+The main text groups the 23 raw fields by type for readability. The table below resolves that grouping into the individual fields, giving for each its name as published, a short description, and its data type, so that no question about the source data remains open.
 
-*[Placeholder: full field-by-field table for the 23 raw columns, with name, type, unit and description.]*
+```{=latex}
+\renewcommand{\arraystretch}{1.25}
+```
+
+| **Column Name** | **Description** | **Data Type** |
+|:---|---|---|
+| Trip ID | A unique identifier for the trip | Text |
+| Taxi ID | A unique identifier for the taxi | Text |
+| Trip Start Timestamp | When the trip started, rounded to the nearest 15 minutes | Floating Timestamp |
+| Trip End Timestamp | When the trip ended, rounded to the nearest 15 minutes | Floating Timestamp |
+| Trip Seconds | Time of the trip in seconds | Number |
+| Trip Miles | Distance of the trip in miles | Number |
+| Pickup Census Tract | The Census Tract where the trip began | Text |
+| Dropoff Census Tract | The Census Tract where the trip ended | Text |
+| Pickup Community Area | The Community Area where the trip began | Number |
+| Dropoff Community Area | The Community Area where the trip ended | Number |
+| Fare | The fare for the trip. | Number |
+| Tips | The tip for the trip. Cash tips generally will not be recorded. | Number |
+| Tolls | The tolls for the trip. | Number |
+| Extras | Extra charges for the trip. | Number |
+| Trip Total | Total cost of the trip, the total of the previous columns. | Number |
+| Payment Type | Type of payment for the trip. | Text |
+| Company | The taxi company. | Text |
+| Pickup Centroid Latitude | The latitude of the center of the pickup census tract or the community area if the census tract has been hidden for privacy | Number |
+| Pickup Centroid Longitude | The longitude of the center of the pickup census tract or the community area if the census tract has been hidden for privacy | Number |
+| Pickup Centroid Location | The location of the center of the pickup census tract or the community area if the census tract has been hidden for privacy | Point |
+| Dropoff Centroid Latitude | The latitude of the center of the dropoff census tract or the community area if the census tract has been hidden for privacy | Number |
+| Dropoff Centroid Longitude | The longitude of the center of the dropoff census tract or the community area if the census tract has been hidden for privacy | Number |
+| Dropoff Centroid Location | The location of the center of the dropoff census tract or the community area if the census tract has been hidden for privacy | Point |
+
+: Field dictionary of the raw trip records {#tbl-flags .striped colwidths="[5,18,60,17]"}
+
+```{=latex}
+\renewcommand{\arraystretch}{1}
+```
 
 ## Validation rules and thresholds
 
-Section 3 distinguishes records that cannot describe a real journey, which are excluded outright, from those implausible in a single attribute, which are retained as demand events but withheld from the statistics they would distort. The table below lists every rule applied, the threshold chosen, the number of records affected and whether the rule acts as a hard exclusion or a soft one.
+Section 3 distinguishes records that cannot describe a real journey, which are excluded outright, from those implausible in a single attribute, which are retained as demand events but withheld from the statistics they would distort. The table below lists every rule applied, the number of records affected and whether the rule acts as a hard exclusion or a soft one.
 
-*[Placeholder: table of validation rules with threshold, affected record count and hard or soft scope.]*
+```{=latex}
+\renewcommand{\arraystretch}{1.25}
+```
+
+| **Flag** | **Description** | **Scope** | **Rows** | **Percentage** |
+|:---|---|---|---|---|
+| end_before_start | Trip end timestamp is earlier than the trip start timestamp | hard — all aggregations | 98 | 0.000662% |
+| extreme_seconds | Trip duration exceeds 3 hours (10,800 s) | hard — all aggregations | 14438 | 0.097554% |
+| extreme_miles | Trip distance exceeds 100 miles | hard — all aggregations | 1202 | 0.008120% |
+| invalid_seconds | Trip duration is zero | soft — duration/speed features only | 201927 | 1.364371% |
+| zero_miles | Trip distance is recorded as zero, likely reflecting metering issues or canceled trips; still counted as a demand event. | soft — distance/speed features only | 1294820 | 8.747182% |
+| extreme_total | Trip total exceeds $200; mostly plausible long-distance rides, but a subset lacks a plausible distance. | soft — revenue aggregations only | 9541 | 0.064598% |
+| missing_pickup_area | Pickup community area is missing (mainly trips outside Chicago). | spatial — community area datasets only | 413385 | 2.792604% |
+
+: Validation rules and thresholds {#tbl-flags .striped colwidths="[15,45,20,10,10]"}
+
+```{=latex}
+\renewcommand{\arraystretch}{1}
+```
 
 ## Spatial resolution reference
 
@@ -50,15 +102,83 @@ Section 3 distinguishes records that cannot describe a real journey, which are e
 
 ## Feature definitions
 
-The predictive models use eighteen features. The table below defines each one, stating how it is derived from the demand panel and why it is included, in particular the cyclical encoding of the calendar quantities and the great-circle distances to the three demand centers.
+The predictive models use eighteen features. The table below defines each one, stating how it is derived from the demand panel, in particular the cyclical encoding of the calendar quantities and the great-circle distances to the three demand centers.
 
-*[Placeholder: table of the eighteen model features with derivation and rationale.]*
+```{=latex}
+\renewcommand{\arraystretch}{1.25}
+```
+
+| **Feature** | **Group** | **Type** | **Meaning** |
+|:---|---|---|---|
+| `demand_count` | target | int | trips originating in a cell × 4h bucket (prediction target) |
+| `hour_sin` / `hour_cos` | calendar | float | time-of-day (4h buckets), cyclical encoding |
+| `dow_sin` / `dow_cos` | calendar | float | day-of-week, cyclical encoding |
+| `month_sin` / `month_cos` | calendar | float | month/season, cyclical encoding |
+| `is_weekend` | calendar | int (0/1) | weekend flag |
+| `cell_lat` | spatial | float | cell centroid latitude |
+| `cell_lon` | spatial | float | cell centroid longitude |
+| `dist_to_loop_mi` | spatial | float | miles to downtown core |
+| `dist_to_ohare_mi` | spatial | float | miles to O'Hare |
+| `dist_to_midway_mi` | spatial | float | miles to Midway |
+| `temp_4h` | weather | float | avg temperature (°F) |
+| `rain_4h` | weather | float | total rainfall accumulated |
+| `snow_4h` | weather | float | total snowfall accumulated |
+| `precip_4h` | weather | float | total precipitation accumulated |
+| `wind_speed_4h` | weather | float | avg wind speed |
+| `weather_code_4h` | weather | int (categorical) | max weather condition code |
+
+: Feature definitions
+
+```{=latex}
+\renewcommand{\arraystretch}{1}
+```
 
 ## Resolution sensitivity results
 
-Section 4.2 reports the direction of the resolution effects and the values at the decisive points. The two tables below give the complete sweeps, spatially across r5, r6, r7, community areas and census tracts at fixed four-hour windows, and temporally across one-hour, four-hour, eight-hour and daily windows at fixed H3 r6. Both report cell count, zero rate, mean demand, MAE, normalized MAE, RMSE and R² for each model. Note that these refits reuse the tuned configuration rather than repeating the search at every resolution, so they are comparable across resolutions but not directly against the holdout results in the main text.
+Section 4.2 reports the direction of the resolution effects and the values at the decisive points. The two tables below give the complete sweeps, spatially across r5, r6, r7, and community areas at fixed four-hour windows, and temporally across one-hour, four-hour, eight-hour and daily windows at fixed H3 r6. Both report cell count, zero rate, mean demand, MAE, normalized MAE, RMSE and R² for each model. Note that these refits reuse the tuned configuration rather than repeating the search at every resolution, so they are comparable across resolutions but not directly against the holdout results in the main text.
 
-*[Placeholder: spatial and temporal resolution sweep tables.]*
+```{=latex}
+\renewcommand{\arraystretch}{1.25}
+```
+
+| **Spatial** | **Temporal** | **Model** | **n_cells** | **Zero Rate** | **Mean** | **MAE** | **nMAE** | **RMSE** | **R²** |
+|:---|---|---|---|---|---|---|---|---|---|
+| h3_r5 | 4h | RBF SVM | 8 | 0.010 | 356.676 | 62.077 | 0.174 | 149.005 | 0.937 |
+| h3_r5 | 4h | Tuned NN | 8 | 0.010 | 356.676 | 61.391 | 0.172 | 139.062 | 0.945 |
+| h3_r6 | 4h | RBF SVM | 27 | 0.126 | 105.682 | 26.144 | 0.247 | 99.349 | 0.913 |
+| h3_r6 | 4h | Tuned NN | 27 | 0.126 | 105.682 | 21.051 | 0.199 | 77.970 | 0.946 |
+| h3_r7 | 4h | RBF SVM | 128 | 0.492 | 22.292 | 15.792 | 0.708 | 79.403 | 0.449 |
+| h3_r7 | 4h | Tuned NN | 128 | 0.492 | 22.292 | 8.810 | 0.395 | 42.321 | 0.843 |
+| community_area | 4h | RBF SVM | 77 | 0.173 | 37.040 | 17.285 | 0.467 | 78.056 | 0.702 |
+| community_area | 4h | Tuned NN | 77 | 0.173 | 37.040 | 10.497 | 0.283 | 44.611 | 0.903 |
+
+: Resolution sensitivity results of spatial dimension
+
+```{=latex}
+\renewcommand{\arraystretch}{1}
+```
+
+```{=latex}
+\renewcommand{\arraystretch}{1.25}
+```
+
+| **Spatial** | **Temporal** | **Model** | **n_cells** | **Zero Rate** | **Mean** | **MAE** | **nMAE** | **RMSE** | **R²** |
+|:---|---|---|---|---|---|---|---|---|---|
+| h3_r6 | 1h | RBF SVM | 27 | 0.268 | 26.424 | 7.876 | 0.298 | 28.822 | 0.888 |
+| h3_r6 | 1h | Tuned NN | 27 | 0.268 | 26.424 | 6.598 | 0.250 | 23.340 | 0.927 |
+| h3_r6 | 4h | RBF SVM | 27 | 0.126 | 105.696 | 26.432 | 0.250 | 100.433 | 0.911 |
+| h3_r6 | 4h | Tuned NN | 27 | 0.126 | 105.696 | 21.810 | 0.206 | 80.674 | 0.942 |
+| h3_r6 | 8h | RBF SVM | 27 | 0.078 | 211.392 | 46.269 | 0.219 | 174.723 | 0.926 |
+| h3_r6 | 8h | Tuned NN | 27 | 0.078 | 211.392 | 38.193 | 0.181 | 138.284 | 0.954 |
+| h3_r6 | 1d | RBF SVM | 27 | 0.040 | 634.177 | 122.432 | 0.193 | 413.329 | 0.938 |
+| h3_r6 | 1d | Tuned NN | 27 | 0.040 | 634.177 | 103.228 | 0.163 | 341.921 | 0.958 |
+
+
+: Resolution sensitivity results of temporal dimension
+
+```{=latex}
+\renewcommand{\arraystretch}{1}
+```
 
 ## Neural network specification and diagnostics
 
@@ -72,9 +192,9 @@ The tuning grid below is deliberately small, since the search runs inside groupe
 
 | **Parameter** | **Candidate values** |
 |:--------------|:---------------------|
-| `hidden_sizes` | (64, 32), (128, 64, 32) |
+| `hidden_sizes` | (64,), (64, 32), (128, 64, 32) |
 | `dropout` | 0.1, 0.2 |
-| `lr` | 1e-3, 5e-4 |
+| `lr` | 3e-3, 1e-3, 5e-4 |
 | `batch_size` | 256, 512 |
 
 : Candidate values searched when tuning the neural network. {#tbl-nn-grid}
