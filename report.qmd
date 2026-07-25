@@ -5,7 +5,7 @@ team: "04" # Specify your team number
 author:
   - name: Georgios Kesopoulos
     student-id: "7396865"
-  - name: Anna Goitowski
+  - name: Anna Katharina Goitowski
     student-id: "7356320"
   - name: Marius Meurer
     student-id: "7443647"
@@ -22,6 +22,8 @@ date: 2026-07-26 # Date of submission
 
 \pagenumbering{arabic}
 \setcounter{page}{1}
+
+{{< include sections/00-executive-summary.qmd >}}
 
 {{< include sections/01-introduction.qmd >}}
 
