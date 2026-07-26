@@ -18,7 +18,7 @@ For the spatial **resolution** we compared Chicago's community areas with a hexa
 | r7 | 5.2 km² | 128 | 49.2% | 20% |
 | r8 | 0.7 km² | 475 | 82.0% | 67% |
 
-: Spatial resolution sweep at fixed four-hour windows. {#tbl-resolution}
+: Spatial resolution sweep at fixed four-hour windows [@h3geo]. {#tbl-resolution}
 
 ```{=latex}
 \renewcommand{\arraystretch}{1}
