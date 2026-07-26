@@ -38,12 +38,12 @@ The written report translates these results into strategic, tactical, and operat
 |-- task2/                Descriptive and spatial analytics notebooks
 |-- task3/                Predictive analytics notebooks
 |-- task4/                Initial smart-charging notebook and MDP notes
-|-- personal_*/           Individual development folders
 |-- sections/             Quarto source files for the report chapters
 |-- assets/               Figures and university assets used in the report
 |-- partials/             LaTeX template customisations
 |-- docs/report.pdf       Rendered report
 |-- report.qmd            Main Quarto document
+|-- project_progress.md   Meeting notes and task assignments
 |-- _quarto.yml           Quarto project and PDF configuration
 |-- pyproject.toml        Python dependencies managed with uv
 `-- uv.lock               Locked dependency versions
@@ -54,7 +54,7 @@ The canonical notebooks for the current analysis are:
 - `task1/task1.ipynb`
 - `task2/task2.ipynb`
 - `task3/task3.ipynb`
-- `taks4/task4.ipynb`
+- `task4/task4.ipynb`
 
 
 
@@ -70,9 +70,7 @@ data/
 |-- Taxi_Trips_(2024-)_20260502_sample.csv   Included sample for a test run
 |-- chicago_weather_hourly.csv        Included
 |-- chicago_weather_daily.csv         Included
-|-- chicago_community_areas.geojson   Included
-|-- comed_prices_raw.csv              Included
-`-- comed_alpha_profile.csv           Included
+`-- chicago_community_areas.geojson   Included
 ```
 
 ### Chicago taxi trips
@@ -117,7 +115,7 @@ data/chicago_weather_hourly.csv
 data/chicago_weather_daily.csv
 ```
 
-The files retain the three Open-Meteo metadata rows because Task 1 skips these rows when loading them. The exact preconfigured download links are documented in Section 1.5 of `task1/Task1_optimized.ipynb`.
+The files retain the three Open-Meteo metadata rows because Task 1 skips these rows when loading them. The exact preconfigured download links are documented in Section 1.5 of `task1/task1.ipynb`.
 
 ### Community Area boundaries
 
@@ -133,14 +131,7 @@ If the file is missing, Task 2 downloads it automatically from the [City of Chic
 
 The project does **not** use a dataset of real charging sessions. Charging demand is derived from the taxi data and modelled synthetically. The price-profile rationale is based on ComEd's official [5-minute electricity-price API](https://hourlypricing.comed.com/hp-api/).
 
-The included files were created by the download cell in `task4/task4.ipynb`, which requests ComEd prices for 1 January 2024 through 30 April 2026:
-
-```text
-data/comed_prices_raw.csv
-data/comed_alpha_profile.csv
-```
-
-The final smart-charging model does not read these files directly. It uses a manually stylised price profile in the code whose temporal shape is based on the downloaded ComEd prices. The files document the empirical source and the intermediate average profile.
+The smart-charging model uses a manually stylised price profile defined in the code, whose temporal shape is based on ComEd's public prices. No price file is included, as the profile is set directly in `task4/task4.ipynb`.
 
 ## Environment setup
 
@@ -172,10 +163,10 @@ Run this command directly with Quarto, not through `uv`. An existing TeX Live or
 
 Run the notebooks in the following order:
 
-1. `task1/Task1_optimized.ipynb`
-2. `task2/Task2_optimized.ipynb`
-3. `task3/Task3_optimized.ipynb`
-4. `task4/xyz.ipynb`
+1. `task1/task1.ipynb`
+2. `task2/task2.ipynb`
+3. `task3/task3.ipynb`
+4. `task4/task4.ipynb`
 
 Task 1 creates the files in `processed/` used by all later tasks. Task 2 reads those aggregates. Task 3 additionally writes trained models and comparison results to `models/`. The current Task 4 notebook requires `processed/df_trips_full.parquet`, but is otherwise independent of Tasks 2 and 3.
 

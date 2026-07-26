@@ -238,3 +238,6 @@ cython_debug/
 .DS_Store
 # Large raw taxi extract (114 MB, exceeds GitHub 100 MB limit); regenerable, not tracked
 /data/Taxi_Trips_Jan2024_filtered.csv
+
+# Quarto copies referenced images into the output dir on render; not tracked
+/docs/assets/
