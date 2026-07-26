@@ -1,4 +1,4 @@
-# Executive summary
+# Executive summary {.unnumbered}
 
 A German car manufacturer is entering the US market with a ride-hailing platform run on a fully electrified fleet, which first requires understanding where and when demand arises. Using the City of Chicago's public taxi records from 2024 onward as a proxy, we find demand to be highly concentrated and stable in both space and time. A single downtown cell accounts for 46.8% of all pickups, together with O'Hare for 67.5%. The two cores behave differently. While downtown generates many short trips, the airports generate fewer but longer and more valuable ones. Demand also follows a predictable rhythm: busier on weekdays than weekends, peaking in the late afternoon, and swinging by close to 50% between the winter low and the summer high, with weather adding a secondary lift.
 

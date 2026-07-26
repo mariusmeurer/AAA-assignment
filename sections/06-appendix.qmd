@@ -1,74 +1,48 @@
 # Appendix
 
-## Field dictionary of the raw trip records
-
-The main text groups the 23 raw fields by type for readability. The table below resolves that grouping into the individual fields, giving for each its name as published, a short description, and its data type, so that no question about the source data remains open.
-
 ```{=latex}
 \renewcommand{\arraystretch}{1.25}
 ```
 
-| **Column Name** | **Description** | **Data Type** |
-|:---|---|---|
-| Trip ID | A unique identifier for the trip | Text |
-| Taxi ID | A unique identifier for the taxi | Text |
-| Trip Start Timestamp | When the trip started, rounded to the nearest 15 minutes | Floating Timestamp |
-| Trip End Timestamp | When the trip ended, rounded to the nearest 15 minutes | Floating Timestamp |
-| Trip Seconds | Time of the trip in seconds | Number |
+| **Column name** | **Description** | **Data type** |
+|:---|:---|:---|
+| Trip ID | Unique identifier for the trip | Text |
+| Taxi ID | Unique identifier for the taxi | Text |
+| Trip Start Timestamp | When the trip started, rounded to the nearest 15 minutes | Timestamp |
+| Trip End Timestamp | When the trip ended, rounded to the nearest 15 minutes | Timestamp |
+| Trip Seconds | Duration of the trip in seconds | Number |
 | Trip Miles | Distance of the trip in miles | Number |
-| Pickup Census Tract | The Census Tract where the trip began | Text |
-| Dropoff Census Tract | The Census Tract where the trip ended | Text |
-| Pickup Community Area | The Community Area where the trip began | Number |
-| Dropoff Community Area | The Community Area where the trip ended | Number |
-| Fare | The fare for the trip. | Number |
-| Tips | The tip for the trip. Cash tips generally will not be recorded. | Number |
-| Tolls | The tolls for the trip. | Number |
-| Extras | Extra charges for the trip. | Number |
-| Trip Total | Total cost of the trip, the total of the previous columns. | Number |
-| Payment Type | Type of payment for the trip. | Text |
-| Company | The taxi company. | Text |
-| Pickup Centroid Latitude | The latitude of the center of the pickup census tract or the community area if the census tract has been hidden for privacy | Number |
-| Pickup Centroid Longitude | The longitude of the center of the pickup census tract or the community area if the census tract has been hidden for privacy | Number |
-| Pickup Centroid Location | The location of the center of the pickup census tract or the community area if the census tract has been hidden for privacy | Point |
-| Dropoff Centroid Latitude | The latitude of the center of the dropoff census tract or the community area if the census tract has been hidden for privacy | Number |
-| Dropoff Centroid Longitude | The longitude of the center of the dropoff census tract or the community area if the census tract has been hidden for privacy | Number |
-| Dropoff Centroid Location | The location of the center of the dropoff census tract or the community area if the census tract has been hidden for privacy | Point |
+| Pickup Census Tract | Census tract where the trip began | Text |
+| Dropoff Census Tract | Census tract where the trip ended | Text |
+| Pickup Community Area | Community area where the trip began | Number |
+| Dropoff Community Area | Community area where the trip ended | Number |
+| Fare | Fare for the trip | Number |
+| Tips | Tip for the trip; cash tips are generally not recorded | Number |
+| Tolls | Tolls for the trip | Number |
+| Extras | Extra charges for the trip | Number |
+| Trip Total | Total cost, the sum of fare, tips, tolls and extras | Number |
+| Payment Type | Type of payment for the trip | Text |
+| Company | Taxi company | Text |
+| Pickup Centroid Latitude | Latitude of the pickup area centroid | Number |
+| Pickup Centroid Longitude | Longitude of the pickup area centroid | Number |
+| Pickup Centroid Location | Location of the pickup area centroid | Point |
+| Dropoff Centroid Latitude | Latitude of the dropoff area centroid | Number |
+| Dropoff Centroid Longitude | Longitude of the dropoff area centroid | Number |
+| Dropoff Centroid Location | Location of the dropoff area centroid | Point |
 
-: Field dictionary of the raw trip records {#tbl-flags .striped colwidths="[5,18,60,17]"}
+: Field dictionary of the raw trip records. {#tbl-fielddict}
 
-```{=latex}
-\renewcommand{\arraystretch}{1}
-```
+| **Flag** | **Description** | **Scope** | **Rows** | **Share** |
+|:---|:---|:---|---:|---:|
+| end_before_start | Trip end is earlier than trip start | hard, all aggregations | 98 | 0.00% |
+| extreme_seconds | Trip duration exceeds 3 hours | hard, all aggregations | 14,438 | 0.10% |
+| extreme_miles | Trip distance exceeds 100 miles | hard, all aggregations | 1,202 | 0.01% |
+| invalid_seconds | Trip duration is zero | soft, duration and speed features | 201,927 | 1.36% |
+| zero_miles | Trip distance is zero; still counted as a demand event | soft, distance and speed features | 1,294,820 | 8.75% |
+| extreme_total | Trip total exceeds \$200 | soft, revenue aggregations | 9,541 | 0.06% |
+| missing_pickup_area | Pickup community area is missing | spatial, community-area datasets | 413,385 | 2.79% |
 
-## Validation rules and thresholds
-
-Section 3 distinguishes records that cannot describe a real journey, which are excluded outright, from those implausible in a single attribute, which are retained as demand events but withheld from the statistics they would distort. The table below lists every rule applied, the number of records affected and whether the rule acts as a hard exclusion or a soft one.
-
-```{=latex}
-\renewcommand{\arraystretch}{1.25}
-```
-
-| **Flag** | **Description** | **Scope** | **Rows** | **Percentage** |
-|:---|---|---|---|---|
-| end_before_start | Trip end timestamp is earlier than the trip start timestamp | hard — all aggregations | 98 | 0.000662% |
-| extreme_seconds | Trip duration exceeds 3 hours (10,800 s) | hard — all aggregations | 14438 | 0.097554% |
-| extreme_miles | Trip distance exceeds 100 miles | hard — all aggregations | 1202 | 0.008120% |
-| invalid_seconds | Trip duration is zero | soft — duration/speed features only | 201927 | 1.364371% |
-| zero_miles | Trip distance is recorded as zero, likely reflecting metering issues or canceled trips; still counted as a demand event. | soft — distance/speed features only | 1294820 | 8.747182% |
-| extreme_total | Trip total exceeds $200; mostly plausible long-distance rides, but a subset lacks a plausible distance. | soft — revenue aggregations only | 9541 | 0.064598% |
-| missing_pickup_area | Pickup community area is missing (mainly trips outside Chicago). | spatial — community area datasets only | 413385 | 2.792604% |
-
-: Validation rules and thresholds {#tbl-flags .striped colwidths="[15,45,20,10,10]"}
-
-```{=latex}
-\renewcommand{\arraystretch}{1}
-```
-
-## Spatial resolution reference
-
-```{=latex}
-\renewcommand{\arraystretch}{1.25}
-```
+: Validation rules and thresholds. {#tbl-validation}
 
 | **Resolution** | **Average area** | **Rough scale** |
 |:---------------|-----------------:|:----------------|
@@ -84,107 +58,50 @@ Section 3 distinguishes records that cannot describe a real journey, which are e
 \renewcommand{\arraystretch}{1}
 ```
 
-## Descriptive analytics
+![Taxi demand by hour of day, split into weekdays and weekends.](assets/taxi-demand-by-hour-of-day-weekday-vs-weekend.png){#fig-taxi-demand-by-hour-of-day-weekday-vs-weekend fig-scap="Taxi demand by hour of day, weekday against weekend" fig-pos="H"}
 
-![Taxi demand by hour of day, split into weekdays and weekends. The line view complements the heatmap in Section 4.1 by showing the shape of the two profiles directly against one another.](assets/taxi-demand-by-hour-of-day-weekday-vs-weekend.png){#fig-taxi-demand-by-hour-of-day-weekday-vs-weekend fig-scap="Taxi demand by hour of day, weekday against weekend" fig-pos="H"}
+![Seasonal demand profile across the observation period.](assets/seasonal-demand-profile.png){#fig-seasonal-demand-profile fig-scap="Seasonal demand profile" fig-pos="H"}
 
-![Seasonal demand profile across the observation period, showing the amplitude between the quiet winter months and the summer peak.](assets/seasonal-demand-profile.png){#fig-seasonal-demand-profile fig-scap="Seasonal demand profile" fig-pos="H"}
-
-![Demand against temperature, aggregated to four-hour windows. The association remains when windows are compared within the same time of day.](assets/demand-vs-weather.png){#fig-demand-vs-temperature fig-scap="Demand against temperature" fig-pos="H"}
+![Demand against temperature, aggregated to four-hour windows.](assets/demand-vs-weather.png){#fig-demand-vs-temperature fig-scap="Demand against temperature" fig-pos="H"}
 
 ![Demand against precipitation intensity, aggregated to four-hour windows.](assets/demand-vs-precipitation-intensity.png){#fig-demand-vs-precipitation-intensity fig-scap="Demand against precipitation intensity" fig-pos="H"}
 
-![Demand against snowfall intensity, restricted to winter months. The windows with heavy snowfall are too few to support a conclusion, which is why Section 4.1 reports no reliable effect.](assets/demand-vs-snow-intensity.png){#fig-demand-vs-snow-intensity fig-scap="Demand against snowfall intensity" fig-pos="H"}
+![Demand against snowfall intensity, restricted to winter months.](assets/demand-vs-snow-intensity.png){#fig-demand-vs-snow-intensity fig-scap="Demand against snowfall intensity" fig-pos="H"}
 
-![Gaussian mixture model fitted to the raw pickup coordinates. Because the model uses no grid, its component centers identify demand cores independently of the hexagon discretization.](assets/gmm.png){#fig-gmm fig-scap="Gaussian mixture model on raw pickup coordinates" fig-pos="H"}
+![Gaussian mixture model fitted to the raw pickup coordinates.](assets/gmm.png){#fig-gmm fig-scap="Gaussian mixture model on raw pickup coordinates" fig-pos="H"}
 
-![Kernel density estimate of pickup density. Unlike the mixture components, it shows the continuous density gradient rather than discrete centers.](assets/kde.png){#fig-kde fig-scap="Kernel density estimate of pickup density" fig-pos="H"}
-
-## Feature definitions
-
-The predictive models use eighteen features. The table below defines each one, stating how it is derived from the demand panel, in particular the cyclical encoding of the calendar quantities and the great-circle distances to the three demand centers.
+![Kernel density estimate of pickup density.](assets/kde.png){#fig-kde fig-scap="Kernel density estimate of pickup density" fig-pos="H"}
 
 ```{=latex}
 \renewcommand{\arraystretch}{1.25}
 ```
 
 | **Feature** | **Group** | **Type** | **Meaning** |
-|:---|---|---|---|
-| `demand_count` | target | int | trips originating in a cell × 4h bucket (prediction target) |
-| `hour_sin` / `hour_cos` | calendar | float | time-of-day (4h buckets), cyclical encoding |
-| `dow_sin` / `dow_cos` | calendar | float | day-of-week, cyclical encoding |
-| `month_sin` / `month_cos` | calendar | float | month/season, cyclical encoding |
+|:---|:---|:---|:---|
+| `demand_count` | target | int | trips originating in a cell and 4h bucket (prediction target) |
+| `hour_sin` / `hour_cos` | calendar | float | time of day, cyclical encoding |
+| `dow_sin` / `dow_cos` | calendar | float | day of week, cyclical encoding |
+| `month_sin` / `month_cos` | calendar | float | month, cyclical encoding |
 | `is_weekend` | calendar | int (0/1) | weekend flag |
 | `cell_lat` | spatial | float | cell centroid latitude |
 | `cell_lon` | spatial | float | cell centroid longitude |
-| `dist_to_loop_mi` | spatial | float | miles to downtown core |
+| `dist_to_loop_mi` | spatial | float | miles to the downtown core |
 | `dist_to_ohare_mi` | spatial | float | miles to O'Hare |
 | `dist_to_midway_mi` | spatial | float | miles to Midway |
-| `temp_4h` | weather | float | avg temperature (°F) |
-| `rain_4h` | weather | float | total rainfall accumulated |
-| `snow_4h` | weather | float | total snowfall accumulated |
-| `precip_4h` | weather | float | total precipitation accumulated |
-| `wind_speed_4h` | weather | float | avg wind speed |
-| `weather_code_4h` | weather | int (categorical) | max weather condition code |
+| `temp_4h` | weather | float | average temperature (°F) |
+| `rain_4h` | weather | float | total rainfall |
+| `snow_4h` | weather | float | total snowfall |
+| `precip_4h` | weather | float | total precipitation |
+| `wind_speed_4h` | weather | float | average wind speed |
+| `weather_code_4h` | weather | int (categorical) | most severe weather code |
 
-: Feature definitions
-
-```{=latex}
-\renewcommand{\arraystretch}{1}
-```
-
-## Resolution sensitivity results
-
-Section 4.2 reports the direction of the resolution effects and the values at the decisive points. The two tables below give the complete sweeps, spatially across r5, r6, r7, and community areas at fixed four-hour windows, and temporally across one-hour, four-hour, eight-hour and daily windows at fixed H3 r6. Both report cell count, zero rate, mean demand, MAE, normalized MAE, RMSE and R² for each model. Note that these refits reuse the tuned configuration rather than repeating the search at every resolution, so they are comparable across resolutions but not directly against the holdout results in the main text.
-
-```{=latex}
-\renewcommand{\arraystretch}{1.25}
-```
-
-| **Spatial** | **Temporal** | **Model** | **n_cells** | **Zero Rate** | **Mean** | **MAE** | **nMAE** | **RMSE** | **R²** |
-|:---|---|---|---|---|---|---|---|---|---|
-| h3_r5 | 4h | RBF SVM | 8 | 0.010 | 356.676 | 62.077 | 0.174 | 149.005 | 0.937 |
-| h3_r5 | 4h | Tuned NN | 8 | 0.010 | 356.676 | 61.391 | 0.172 | 139.062 | 0.945 |
-| h3_r6 | 4h | RBF SVM | 27 | 0.126 | 105.682 | 26.144 | 0.247 | 99.349 | 0.913 |
-| h3_r6 | 4h | Tuned NN | 27 | 0.126 | 105.682 | 21.051 | 0.199 | 77.970 | 0.946 |
-| h3_r7 | 4h | RBF SVM | 128 | 0.492 | 22.292 | 15.792 | 0.708 | 79.403 | 0.449 |
-| h3_r7 | 4h | Tuned NN | 128 | 0.492 | 22.292 | 8.810 | 0.395 | 42.321 | 0.843 |
-| community_area | 4h | RBF SVM | 77 | 0.173 | 37.040 | 17.285 | 0.467 | 78.056 | 0.702 |
-| community_area | 4h | Tuned NN | 77 | 0.173 | 37.040 | 10.497 | 0.283 | 44.611 | 0.903 |
-
-: Resolution sensitivity results of spatial dimension
+: Feature definitions. {#tbl-features}
 
 ```{=latex}
 \renewcommand{\arraystretch}{1}
 ```
 
-```{=latex}
-\renewcommand{\arraystretch}{1.25}
-```
-
-| **Spatial** | **Temporal** | **Model** | **n_cells** | **Zero Rate** | **Mean** | **MAE** | **nMAE** | **RMSE** | **R²** |
-|:---|---|---|---|---|---|---|---|---|---|
-| h3_r6 | 1h | RBF SVM | 27 | 0.268 | 26.424 | 7.876 | 0.298 | 28.822 | 0.888 |
-| h3_r6 | 1h | Tuned NN | 27 | 0.268 | 26.424 | 6.598 | 0.250 | 23.340 | 0.927 |
-| h3_r6 | 4h | RBF SVM | 27 | 0.126 | 105.696 | 26.432 | 0.250 | 100.433 | 0.911 |
-| h3_r6 | 4h | Tuned NN | 27 | 0.126 | 105.696 | 21.810 | 0.206 | 80.674 | 0.942 |
-| h3_r6 | 8h | RBF SVM | 27 | 0.078 | 211.392 | 46.269 | 0.219 | 174.723 | 0.926 |
-| h3_r6 | 8h | Tuned NN | 27 | 0.078 | 211.392 | 38.193 | 0.181 | 138.284 | 0.954 |
-| h3_r6 | 1d | RBF SVM | 27 | 0.040 | 634.177 | 122.432 | 0.193 | 413.329 | 0.938 |
-| h3_r6 | 1d | Tuned NN | 27 | 0.040 | 634.177 | 103.228 | 0.163 | 341.921 | 0.958 |
-
-
-: Resolution sensitivity results of temporal dimension
-
-```{=latex}
-\renewcommand{\arraystretch}{1}
-```
-
-## Neural network specification and diagnostics
-
-The tuning grid below is deliberately small, since the search runs inside grouped cross-validation and is repeated within each fold.
-
-![Architecture of the feedforward neural network in its baseline (one hidden layer of 64 units) and tuned (128–64–32) configurations. All layers are fully connected, hidden layers use ReLU activations with dropout, and the output is a single linear unit.](assets/Appendix - nn_architecture.png){#fig-nn-architecture fig-scap="Architecture of the baseline and tuned neural networks" fig-pos="H"}
+![Architecture of the feedforward neural network in its baseline (one hidden layer of 64 units) and tuned (128-64-32) configurations.](assets/Appendix - nn_architecture.png){#fig-nn-architecture fig-scap="Architecture of the baseline and tuned neural networks" fig-pos="H"}
 
 ```{=latex}
 \renewcommand{\arraystretch}{1.25}
@@ -203,8 +120,44 @@ The tuning grid below is deliberately small, since the search runs inside groupe
 \renewcommand{\arraystretch}{1}
 ```
 
-![Training result of the baseline neural network, before hyperparameter tuning.](assets/Appendix_NN_baseline.png){#fig-nn-baseline-result fig-scap="Training result of the baseline neural network" fig-pos="H"}
+![Training result of the baseline neural network.](assets/Appendix_NN_baseline.png){#fig-nn-baseline-result fig-scap="Training result of the baseline neural network" fig-pos="H"}
 
-![Training result of the tuned neural network, the configuration carried into the holdout comparison.](assets/Appendix_NN_tuned.png){#fig-nn-tuned-result fig-scap="Training result of the tuned neural network" fig-pos="H"}
+![Training result of the tuned neural network.](assets/Appendix_NN_tuned.png){#fig-nn-tuned-result fig-scap="Training result of the tuned neural network" fig-pos="H"}
 
-![SHAP feature importance for the tuned neural network, showing the distances to the demand centers and the time-of-day terms dominating the prediction.](assets/SHAP.png){#fig-shap fig-scap="SHAP feature importance for the tuned neural network" fig-pos="H"}
+![SHAP feature importance for the tuned neural network.](assets/SHAP.png){#fig-shap fig-scap="SHAP feature importance for the tuned neural network" fig-pos="H"}
+
+```{=latex}
+\renewcommand{\arraystretch}{1.25}
+```
+
+| **Spatial** | **Temporal** | **Model** | **Cells** | **Zero rate** | **Mean** | **MAE** | **nMAE** | **RMSE** | **R²** |
+|:---|:---|:---|---:|---:|---:|---:|---:|---:|---:|
+| h3_r5 | 4h | RBF SVM | 8 | 0.010 | 356.68 | 62.08 | 0.174 | 149.01 | 0.937 |
+| h3_r5 | 4h | Tuned NN | 8 | 0.010 | 356.68 | 61.39 | 0.172 | 139.06 | 0.945 |
+| h3_r6 | 4h | RBF SVM | 27 | 0.126 | 105.68 | 26.14 | 0.247 | 99.35 | 0.913 |
+| h3_r6 | 4h | Tuned NN | 27 | 0.126 | 105.68 | 21.05 | 0.199 | 77.97 | 0.946 |
+| h3_r7 | 4h | RBF SVM | 128 | 0.492 | 22.29 | 15.79 | 0.708 | 79.40 | 0.449 |
+| h3_r7 | 4h | Tuned NN | 128 | 0.492 | 22.29 | 8.81 | 0.395 | 42.32 | 0.843 |
+| community_area | 4h | RBF SVM | 77 | 0.173 | 37.04 | 17.29 | 0.467 | 78.06 | 0.702 |
+| community_area | 4h | Tuned NN | 77 | 0.173 | 37.04 | 10.50 | 0.283 | 44.61 | 0.903 |
+| census_tract | 4h | RBF SVM | 607 | 0.947 | 2.11 | 2.04 | 0.968 | 21.04 | 0.079 |
+| census_tract | 4h | Tuned NN | 607 | 0.947 | 2.11 | 1.54 | 0.729 | 17.33 | 0.375 |
+
+: Resolution sensitivity across spatial units at fixed four-hour windows. {#tbl-sweep-spatial}
+
+| **Spatial** | **Temporal** | **Model** | **Cells** | **Zero rate** | **Mean** | **MAE** | **nMAE** | **RMSE** | **R²** |
+|:---|:---|:---|---:|---:|---:|---:|---:|---:|---:|
+| h3_r6 | 1h | RBF SVM | 27 | 0.268 | 26.42 | 7.88 | 0.298 | 28.82 | 0.888 |
+| h3_r6 | 1h | Tuned NN | 27 | 0.268 | 26.42 | 6.60 | 0.250 | 23.34 | 0.927 |
+| h3_r6 | 4h | RBF SVM | 27 | 0.126 | 105.70 | 26.43 | 0.250 | 100.43 | 0.911 |
+| h3_r6 | 4h | Tuned NN | 27 | 0.126 | 105.70 | 21.81 | 0.206 | 80.67 | 0.942 |
+| h3_r6 | 8h | RBF SVM | 27 | 0.078 | 211.39 | 46.27 | 0.219 | 174.72 | 0.926 |
+| h3_r6 | 8h | Tuned NN | 27 | 0.078 | 211.39 | 38.19 | 0.181 | 138.28 | 0.954 |
+| h3_r6 | 1d | RBF SVM | 27 | 0.040 | 634.18 | 122.43 | 0.193 | 413.33 | 0.938 |
+| h3_r6 | 1d | Tuned NN | 27 | 0.040 | 634.18 | 103.23 | 0.163 | 341.92 | 0.958 |
+
+: Resolution sensitivity across temporal windows at fixed H3 r6. {#tbl-sweep-temporal}
+
+```{=latex}
+\renewcommand{\arraystretch}{1}
+```

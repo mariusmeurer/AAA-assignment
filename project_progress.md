@@ -1,69 +1,91 @@
-The project progress, outcomes of meetings and ToDos are written down here. 
+The project progress, outcomes of meetings and ToDos are written down here.
 
 # Meeting #1 (04.05.26)
 
-- generel work practices: meetings all monday 7:30pm
-- 
-- timeline: finished with task 1 on 18.5
+- General work practices: meetings every Monday 7:30pm.
+- Timeline: task 1 to be finished by 18.05.
 
 ## ToDo #1
-- Huyen: inform about additional data and how to include it
-- Kati, Georgios, Marius: until Friday everyone how data needs to be prepared (just send into WhatsApp)
-- Georgios, Marius: start with task 1
-- Huyen checks for how to integrate GitHub and use quarto
-- next meeting 11.5 7:30pm
+- Huyen: inform about additional data and how to include it.
+- Kati, Georgios, Marius: by Friday, note how the data needs to be prepared (send to WhatsApp).
+- Georgios, Marius: start with task 1.
+- Huyen: check how to integrate GitHub and use Quarto.
 
 # Meeting #2 (11.05.26)
 
-- open-meteo.com seems really good https://open-meteo.com/en/docs/historical-weather-api?latitude=41.878865584&longitude=-87.625192142&start_date=2024-01-01
-- how to share the big data set (maybe google share?)
-- stay within the transactional data and later on aggregate the data
+- Open-Meteo looks like a good weather source (https://open-meteo.com/en/docs/historical-weather-api).
+- Open question: how to share the large dataset (maybe Google Drive?).
+- Stay within the transactional data and aggregate later.
 
 ## ToDo #2
-- Georgios to send Marius the whole data set 
-- Marius will work on data set on Tuesday
-- Georgios 1.3 + 1.4
-- Kati 1.5
-- Huyen 1.6
+- Georgios: send Marius the whole dataset.
+- Marius: work on the dataset (Tuesday).
+- Georgios: 1.3 and 1.4.
+- Kati: 1.5.
+- Huyen: 1.6.
 
 # Meeting #3 (18.05.26)
-- double check with precise data in the end: for now stay with one district for the whole of Chicago
 
-## ToDo #3 
-- everyone doublechecks chapter 1 for understanding
-- Marius will work at task 2 on Thursday and then structure tasks
-- Huyen to do 1.7 and missing stuff in task 1
-- Kati does 2.1 to 2.3
-- Georgios does 2.4 to 2.6
-- Marius does 2.7 to 2.8
+- Double-check with precise data at the end; for now treat the whole of Chicago as one district.
+
+## ToDo #3
+- Everyone: double-check chapter 1 for understanding.
+- Marius: work on task 2 (Thursday), then structure the tasks.
+- Huyen: 1.7 and remaining items in task 1.
+- Kati: 2.1 to 2.3.
+- Georgios: 2.4 to 2.6.
+- Marius: 2.7 to 2.8.
 
 # Meeting #4 (01.06.26)
 
+- Focus: split task 3 (chapter 3) across the team.
+
+## ToDo #4
+- Kati: 3.1 to 3.2, feature design and validation strategy.
+- Georgios: 3.3 to 3.4, SVM (baseline and advanced).
+- Huyen: 3.5 to 3.6, NN baseline and tuning.
+- Marius: 3.7 to 3.8, resolution sensitivity and comparison.
 
 # Meeting #5 (22.06.26)
-- keep in mind to create a sample dataset for challenging
+
+- Keep in mind to create a sample dataset for challenging.
+- Focus: split task 4 (chapter 4) across the team.
+
+## ToDo #5
+- Kati: 4.1 problem formalisation.
+- Huyen: 4.2 environment implementation and 4.3 design choices and parameters.
+- Georgios: 4.4 reinforcement-learning solution and 4.5 results and evaluation against baselines.
+- Marius: 4.6 sensitivity and discussion, plus challenging.
 
 # Meeting #6 (03.07.26)
 
-## ToDo #2
-- one person to do create title page and set up the whole formal setting + create some writting conventions (do we use numbers for enumeration) + making notebooks clean (includes writing comments, deleting markdown if too much / redundant, write student realistic comments (no AI)) (Kati)
-- two people to rewrite task 4 with new improvements until finalization (Georgios + Marius)
-- writing chapter 4 (Huyen)
+- Focus: move into report writing; assign the formal setup, the task 4 rewrite, and chapter 4.
+
+## ToDo #6
+- Kati: create the title page and formal setting, define writing conventions (e.g. numbering for enumeration), and clean up the notebooks (write comments, delete redundant markdown, keep student-realistic comments, no AI traces).
+- Georgios, Marius: rewrite task 4 with the new improvements through to finalization.
+- Huyen: write chapter 4.
 
 # Meeting #7 (09.07.26) 7:30pm
 
-- Huyen checks all notebooks on consistency. So do we really answer every question of the tasks perfectly in each chapter? Also think about the notebook structure. Do we really need to split them up? Please also consider, that we do not have any double imports e.g. That is really obviously just AI. Furthermore update the README and test it to be sure it really works out.
-- Marius would rewrite chapter 1 to 3. So check everything and write a final version. 
-- Georgios could also quality check chapter 4 and rewrite. 
-- Kati could maybe do task 5 in our repo & also include this in chapter 5, so write chapter 5 in our report. 
+- Focus: consistency check of the notebooks and first full write-up of the chapters.
 
+## ToDo #7
+- Huyen: check all notebooks for consistency (do we answer every task question in each chapter?), reconsider the notebook structure (do we need to split them?), remove obvious AI traces such as double imports, and update and test the README.
+- Marius: rewrite and finalize chapters 1 to 3.
+- Georgios: quality-check and rewrite chapter 4.
+- Kati: do task 5 in the repo and write chapter 5.
 
 # Meeting #8 (15.07.26) 8pm
 
-...
+- Focus: finalization phase begins.
 
-## To Do 
-- Kati finalize notebooks
-- Georgios then chapter 5 & Read-me
-- Marius to check chapter 4 
-- Huyen to check chapter 1-3
+## ToDo #8
+- Kati: finalize the notebooks.
+- Georgios: chapter 5 and README.
+- Marius: check chapter 4.
+- Huyen: check chapters 1 to 3.
+
+# From 20.07.26
+
+- Very iterative: everyone rechecks everything and works on the report. No distinct task structure anymore.

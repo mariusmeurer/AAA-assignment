@@ -51,9 +51,9 @@ The written report translates these results into strategic, tactical, and operat
 
 The canonical notebooks for the current analysis are:
 
-- `task1/Task1_optimized.ipynb`
-- `task2/Task2_optimized.ipynb`
-- `task3/Task3_optimized.ipynb`
+- `task1/task1.ipynb`
+- `task2/task2.ipynb`
+- `task3/task3.ipynb`
 - `taks4/task4.ipynb`
 
 

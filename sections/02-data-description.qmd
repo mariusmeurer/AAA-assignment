@@ -2,7 +2,7 @@
 
 We draw on three datasets. The primary source is the *Taxi Trips (2024-)* record published by the City of Chicago on its open data portal, holding 14,802,849 trips across 23 fields. It spans 1 January 2024 to 31 March 2026 and covers 3,735 vehicles, 46 licensed taxi companies and all 77 of Chicago's community areas. To this we add historical weather for Chicago from the Open-Meteo API, at hourly resolution (19,728 observations of temperature, precipitation, rain, snowfall, wind speed and a categorical WMO weather code) alongside 822 daily aggregates that add sunshine duration and the number of precipitation hours. A GeoJSON of the 77 community-area boundaries supplies the geometry used to map and aggregate trips spatially. We decided against point-of-interest extensions, as the records already at hand cover the questions set out in Section 1, so the expected analytical gain did not justify the additional integration effort.
 
-Each row represents one completed taxi trip. Location is reported at three nested levels, census tract within community area, plus a centroid coordinate pair. The 23 fields group as follows, with the full field-by-field dictionary given in the Appendix. For demand modeling, only the pickup-side time and location fields are required.
+Each row represents one completed taxi trip. Location is reported at three nested levels, census tract within community area, plus a centroid coordinate pair. The 23 fields group as follows, with the full field-by-field dictionary given in @tbl-fielddict. For demand modeling, only the pickup-side time and location fields are required.
 
 ```{=latex}
 \renewcommand{\arraystretch}{1.25}
