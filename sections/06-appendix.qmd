@@ -184,7 +184,7 @@ Section 4.2 reports the direction of the resolution effects and the values at th
 
 The tuning grid below is deliberately small, since the search runs inside grouped cross-validation and is repeated within each fold.
 
-![Architecture of the baseline neural network, showing layer sizes and the arrangement of the feedforward stack.](assets/Appendix - nn_architecture.png){#fig-nn-architecture fig-scap="Architecture of the baseline neural network" fig-pos="H"}
+![Architecture of the feedforward neural network in its baseline (one hidden layer of 64 units) and tuned (128–64–32) configurations. All layers are fully connected, hidden layers use ReLU activations with dropout, and the output is a single linear unit.](assets/Appendix - nn_architecture.png){#fig-nn-architecture fig-scap="Architecture of the baseline and tuned neural networks" fig-pos="H"}
 
 ```{=latex}
 \renewcommand{\arraystretch}{1.25}
@@ -194,7 +194,7 @@ The tuning grid below is deliberately small, since the search runs inside groupe
 |:--------------|:---------------------|
 | `hidden_sizes` | (64,), (64, 32), (128, 64, 32) |
 | `dropout` | 0.1, 0.2 |
-| `lr` | 3e-3, 1e-3, 5e-4 |
+| `lr` | 3e-3, 1e-3, 3e-4 |
 | `batch_size` | 256, 512 |
 
 : Candidate values searched when tuning the neural network. {#tbl-nn-grid}
